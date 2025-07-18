@@ -18,12 +18,12 @@ class BarbershopScenarioTester:
     
     def __init__(self):
         self.base_urls = {
-            "core_runner": "http://localhost:8888",
+            "core_runner": "http://localhost:8000",
             "tula_spec": "http://localhost:8001", 
             "shablon_spec": "http://localhost:8002"
         }
         self.results = {}
-        self.product_name = "barbershop_test"
+        self.product_name = "ivan"
         self.product_path = f"instances/{self.product_name}"
     
     def test_jalm_services_health(self) -> Dict[str, bool]:
@@ -114,7 +114,7 @@ class BarbershopScenarioTester:
                     templates_results["barbershop_template"] = True
                     
                     # Проверяем структуру шаблона
-                    required_fields = ["name", "description", "files", "config"]
+                    required_fields = ["name", "description", "config_schema"]
                     for field in required_fields:
                         if field in barbershop_template:
                             print(f"✅ Поле {field} в шаблоне найдено")
@@ -122,6 +122,19 @@ class BarbershopScenarioTester:
                         else:
                             print(f"❌ Поле {field} в шаблоне не найдено")
                             templates_results[f"template_field_{field}"] = False
+                    
+                    # Проверяем поле files отдельно (это массив)
+                    if "files" in barbershop_template:
+                        files = barbershop_template["files"]
+                        if isinstance(files, list) and len(files) > 0:
+                            print(f"✅ Поле files в шаблоне найдено (файлов: {len(files)})")
+                            templates_results["template_field_files"] = True
+                        else:
+                            print("❌ Поле files в шаблоне пустое")
+                            templates_results["template_field_files"] = False
+                    else:
+                        print("❌ Поле files в шаблоне не найдено")
+                        templates_results["template_field_files"] = False
                 else:
                     print("❌ Шаблон барбершопа не найден")
                     templates_results["barbershop_template"] = False
@@ -221,14 +234,14 @@ class BarbershopScenarioTester:
         print("✅ Продукт существует")
         structure_results["product_exists"] = True
         
-        # Проверяем основные файлы
+        # Проверяем основные файлы Node.js приложения
         required_files = [
             "Dockerfile",
             "docker-compose.yml", 
-            "requirements.txt",
-            "main.py",
-            "provision.yaml",
-            "README.md"
+            "package.json",
+            "package-lock.json",
+            "README.md",
+            "app.py"
         ]
         
         for file_name in required_files:
@@ -241,7 +254,7 @@ class BarbershopScenarioTester:
                 structure_results[f"file_{file_name}"] = False
         
         # Проверяем структуру каталогов
-        required_dirs = ["api", "static", "templates"]
+        required_dirs = ["config", "dist", "FILES", "app"]
         for dir_name in required_dirs:
             dir_path = Path(self.product_path) / dir_name
             if dir_path.exists() and dir_path.is_dir():
@@ -251,6 +264,15 @@ class BarbershopScenarioTester:
                 print(f"❌ Каталог {dir_name} не найден")
                 structure_results[f"dir_{dir_name}"] = False
         
+        # Проверяем provision.yaml в config/
+        provision_path = Path(self.product_path) / "config" / "provision.yaml"
+        if provision_path.exists():
+            print("✅ provision.yaml в config/ найден")
+            structure_results["file_provision_yaml"] = True
+        else:
+            print("❌ provision.yaml в config/ не найден")
+            structure_results["file_provision_yaml"] = False
+        
         self.results["product_structure"] = structure_results
         return structure_results
     
@@ -259,7 +281,7 @@ class BarbershopScenarioTester:
         print("\n=== Тест provision.yaml ===")
         provision_results = {}
         
-        provision_file = Path(self.product_path) / "provision.yaml"
+        provision_file = Path(self.product_path) / "config" / "provision.yaml"
         if not provision_file.exists():
             print("❌ provision.yaml не найден")
             provision_results["file_exists"] = False
@@ -274,7 +296,7 @@ class BarbershopScenarioTester:
                 provision = yaml.safe_load(f)
             
             # Проверяем основные секции
-            required_sections = ["name", "description", "variables", "functions", "templates"]
+            required_sections = ["app_id", "env", "dependencies", "meta"]
             for section in required_sections:
                 if section in provision:
                     print(f"✅ Секция {section} найдена")
@@ -283,35 +305,23 @@ class BarbershopScenarioTester:
                     print(f"❌ Секция {section} не найдена")
                     provision_results[f"section_{section}"] = False
             
-            # Проверяем переменные
-            if "variables" in provision:
-                vars_count = len(provision["variables"])
-                print(f"✅ Найдено {vars_count} переменных")
-                provision_results["variables_count"] = vars_count
-                
-                required_vars = ["shop_name", "telegram_bot_token"]
-                for var in required_vars:
-                    if var in provision["variables"]:
-                        print(f"✅ Переменная {var} найдена")
-                        provision_results[f"variable_{var}"] = True
-                    else:
-                        print(f"❌ Переменная {var} не найдена")
-                        provision_results[f"variable_{var}"] = False
+            # Проверяем app_id
+            if "app_id" in provision:
+                app_id = provision["app_id"]
+                print(f"✅ App ID: {app_id}")
+                provision_results["app_id"] = app_id
             
-            # Проверяем функции
-            if "functions" in provision:
-                funcs_count = len(provision["functions"])
-                print(f"✅ Найдено {funcs_count} функций")
-                provision_results["functions_count"] = funcs_count
-                
-                required_funcs = ["slot_validator", "booking_widget", "notify_system"]
-                for func in required_funcs:
-                    if func in provision["functions"]:
-                        print(f"✅ Функция {func} найдена")
-                        provision_results[f"function_{func}"] = True
-                    else:
-                        print(f"❌ Функция {func} не найдена")
-                        provision_results[f"function_{func}"] = False
+            # Проверяем environment
+            if "env" in provision:
+                env = provision["env"]
+                print(f"✅ Environment: {env}")
+                provision_results["environment"] = env
+            
+            # Проверяем зависимости
+            if "dependencies" in provision:
+                deps = provision["dependencies"]
+                print(f"✅ Зависимости: {list(deps.keys())}")
+                provision_results["dependencies"] = list(deps.keys())
                         
         except Exception as e:
             print(f"❌ Ошибка чтения provision.yaml: {e}")
@@ -335,12 +345,12 @@ class BarbershopScenarioTester:
                 with open(dockerfile_path, 'r', encoding='utf-8') as f:
                     content = f.read()
                 
-                # Проверяем ключевые элементы
+                # Проверяем ключевые элементы для Node.js
                 checks = [
-                    ("FROM python", "Базовый образ Python"),
-                    ("COPY requirements.txt", "Копирование зависимостей"),
-                    ("RUN pip install", "Установка зависимостей"),
-                    ("COPY .", "Копирование кода"),
+                    ("FROM node", "Базовый образ Node.js"),
+                    ("COPY package.json", "Копирование package.json"),
+                    ("RUN npm", "Установка зависимостей npm"),
+                    ("COPY dist", "Копирование dist"),
                     ("EXPOSE", "Открытие порта"),
                     ("CMD", "Команда запуска")
                 ]
@@ -374,9 +384,8 @@ class BarbershopScenarioTester:
                 checks = [
                     ("version:", "Версия compose"),
                     ("services:", "Секция сервисов"),
-                    ("jalm-core-runner:", "Сервис core-runner"),
-                    ("jalm-tula-spec:", "Сервис tula-spec"),
-                    ("jalm-shablon-spec:", "Сервис shablon-spec"),
+                    ("ivan:", "Сервис ivan"),
+                    ("ports:", "Секция портов"),
                     ("networks:", "Секция сетей")
                 ]
                 
@@ -403,56 +412,71 @@ class BarbershopScenarioTester:
         print("\n=== Тест API продукта ===")
         api_results = {}
         
-        # Проверяем main.py
-        main_py_path = Path(self.product_path) / "main.py"
-        if not main_py_path.exists():
-            print("❌ main.py не найден")
-            api_results["main_py_exists"] = False
-            self.results["product_api"] = api_results
-            return api_results
+        # Проверяем app.py (Python API)
+        app_py_path = Path(self.product_path) / "app.py"
+        if app_py_path.exists():
+            print("✅ app.py найден")
+            api_results["app_py_exists"] = True
+            
+            try:
+                with open(app_py_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                
+                # Проверяем ключевые элементы API
+                checks = [
+                    ("from fastapi import", "Импорт FastAPI"),
+                    ("app = FastAPI", "Создание приложения"),
+                    ("@app.get", "GET эндпоинты"),
+                    ("uvicorn.run", "Запуск сервера")
+                ]
+                
+                for check, description in checks:
+                    if check in content:
+                        print(f"✅ {description} найдено")
+                        api_results[f"api_{check.lower().replace(' ', '_').replace(':', '')}"] = True
+                    else:
+                        print(f"❌ {description} не найдено")
+                        api_results[f"api_{check.lower().replace(' ', '_').replace(':', '')}"] = False
+                        
+            except Exception as e:
+                print(f"❌ Ошибка чтения app.py: {e}")
+                api_results["app_py_error"] = str(e)
+        else:
+            print("❌ app.py не найден")
+            api_results["app_py_exists"] = False
         
-        print("✅ main.py найден")
-        api_results["main_py_exists"] = True
+        # Проверяем dist/index.js (Node.js API)
+        index_js_path = Path(self.product_path) / "dist" / "index.js"
+        if index_js_path.exists():
+            print("✅ dist/index.js найден")
+            api_results["index_js_exists"] = True
+        else:
+            print("❌ dist/index.js не найден")
+            api_results["index_js_exists"] = False
         
-        try:
-            with open(main_py_path, 'r', encoding='utf-8') as f:
-                content = f.read()
+        # Проверяем package.json
+        package_json_path = Path(self.product_path) / "package.json"
+        if package_json_path.exists():
+            print("✅ package.json найден")
+            api_results["package_json_exists"] = True
             
-            # Проверяем ключевые элементы API
-            checks = [
-                ("from fastapi import", "Импорт FastAPI"),
-                ("app = FastAPI", "Создание приложения"),
-                ("@app.get", "GET эндпоинты"),
-                ("@app.post", "POST эндпоинты"),
-                ("uvicorn.run", "Запуск сервера")
-            ]
-            
-            for check, description in checks:
-                if check in content:
-                    print(f"✅ {description} найдено")
-                    api_results[f"api_{check.lower().replace(' ', '_').replace('=', '')}"] = True
+            try:
+                with open(package_json_path, 'r', encoding='utf-8') as f:
+                    package = json.load(f)
+                
+                if "scripts" in package and "start" in package["scripts"]:
+                    print("✅ Скрипт start найден")
+                    api_results["start_script"] = True
                 else:
-                    print(f"❌ {description} не найдено")
-                    api_results[f"api_{check.lower().replace(' ', '_').replace('=', '')}"] = False
-            
-            # Проверяем интеграцию с JALM
-            jalm_checks = [
-                ("JALM_CORE_RUNNER_URL", "URL core-runner"),
-                ("JALM_TULA_SPEC_URL", "URL tula-spec"),
-                ("JALM_SHABLON_SPEC_URL", "URL shablon-spec")
-            ]
-            
-            for check, description in jalm_checks:
-                if check in content:
-                    print(f"✅ {description} найдено")
-                    api_results[f"jalm_{check.lower()}"] = True
-                else:
-                    print(f"❌ {description} не найдено")
-                    api_results[f"jalm_{check.lower()}"] = False
+                    print("❌ Скрипт start не найден")
+                    api_results["start_script"] = False
                     
-        except Exception as e:
-            print(f"❌ Ошибка чтения main.py: {e}")
-            api_results["error"] = str(e)
+            except Exception as e:
+                print(f"❌ Ошибка чтения package.json: {e}")
+                api_results["package_json_error"] = str(e)
+        else:
+            print("❌ package.json не найден")
+            api_results["package_json_exists"] = False
         
         self.results["product_api"] = api_results
         return api_results

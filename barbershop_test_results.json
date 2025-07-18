@@ -18,25 +18,61 @@
     "barbershop_template": true,
     "template_field_name": false,
     "template_field_description": true,
-    "template_field_files": false,
-    "template_field_config": false
+    "template_field_config_schema": false,
+    "template_field_files": false
   },
   "product_creation": {
     "intent_dsl_created": true,
-    "product_created": false,
-    "error": "  File \"D:\\Projects_Clean\\Saas\\saas_provisioner.py\", line 532\n    interval: 30s\n               ^\nSyntaxError: invalid decimal literal\n"
+    "product_created": true
   },
   "product_structure": {
-    "product_exists": false
+    "product_exists": true,
+    "file_Dockerfile": true,
+    "file_docker-compose.yml": true,
+    "file_package.json": true,
+    "file_package-lock.json": true,
+    "file_README.md": true,
+    "file_app.py": false,
+    "dir_config": true,
+    "dir_dist": true,
+    "dir_FILES": true,
+    "dir_app": true,
+    "file_provision_yaml": true
   },
   "provision_yaml": {
-    "file_exists": false
+    "file_exists": true,
+    "section_app_id": true,
+    "section_env": true,
+    "section_dependencies": true,
+    "section_meta": true,
+    "app_id": "jalm_app_v1",
+    "environment": "prod infra/docker/compose",
+    "dependencies": [
+      "datastore",
+      "api_layer",
+      "tula_spec",
+      "shablon_spec"
+    ]
   },
   "docker_configuration": {
-    "dockerfile_exists": false,
-    "compose_exists": false
+    "dockerfile_exists": true,
+    "dockerfile_from_node": true,
+    "dockerfile_copy_package.json": true,
+    "dockerfile_run_npm": true,
+    "dockerfile_copy_dist": true,
+    "dockerfile_expose": true,
+    "dockerfile_cmd": true,
+    "compose_exists": true,
+    "compose_version": true,
+    "compose_services": true,
+    "compose_ivan": true,
+    "compose_ports": true,
+    "compose_networks": true
   },
   "product_api": {
-    "main_py_exists": false
+    "app_py_exists": false,
+    "index_js_exists": true,
+    "package_json_exists": true,
+    "start_script": true
   }
 }

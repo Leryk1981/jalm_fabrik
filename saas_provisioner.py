@@ -38,9 +38,9 @@ class SaasProvisioner:
                         "description": func["description"],
                         "tags": func.get("tags", [])
                     })
-                print(f"🔍 Обнаружено {len(services['tula_spec'])} функций в Tula Spec")
+                print(f"[SEARCH] Обнаружено {len(services['tula_spec'])} функций в Tula Spec")
         except Exception as e:
-            print(f"⚠️ Ошибка сканирования Tula Spec: {e}")
+            print(f"[WARNING] Ошибка сканирования Tula Spec: {e}")
         
         # Сканирование Shablon Spec шаблонов
         try:
@@ -58,9 +58,9 @@ class SaasProvisioner:
                         "category": template.get("category", "general"),
                         "tags": template.get("tags", [])
                     })
-                print(f"🔍 Обнаружено {len(services['shablon_spec'])} шаблонов в Shablon Spec")
+                print(f"[SEARCH] Обнаружено {len(services['shablon_spec'])} шаблонов в Shablon Spec")
         except Exception as e:
-            print(f"⚠️ Ошибка сканирования Shablon Spec: {e}")
+            print(f"[WARNING] Ошибка сканирования Shablon Spec: {e}")
         
         return services
 
@@ -87,7 +87,7 @@ class SaasProvisioner:
             return provision_path
             
         except ImportError:
-            print("⚠️ Provision scanner не найден, используем базовый provision.yaml")
+            print("[WARNING] Provision scanner не найден, используем базовый provision.yaml")
             return self._create_basic_provision_yaml(jalm_path)
         except Exception as e:
             print(f"Ошибка генерации provision.yaml: {e}")
@@ -391,16 +391,16 @@ class {product_name.replace('-', '_').title()}App:
         ]
         
         for url, name in services:
-            print(f"⏳ Ожидание готовности {{name}}...")
+            print(f"[WAIT] Ожидание готовности {{name}}...")
             for i in range(30):  # 30 попыток
                 try:
                     response = requests.get(f"{{url}}/health", timeout=5)
                     if response.status_code == 200:
-                        print(f"✅ {{name}} готов")
+                        print(f"[OK] {{name}} готов")
                         break
                 except:
                     if i == 29:
-                        print(f"❌ {{name}} не отвечает")
+                        print(f"[ERROR] {{name}} не отвечает")
                         return False
                     time.sleep(2)
         return True
@@ -704,12 +704,12 @@ health: ## Проверить здоровье продукта
 test: ## Запустить тесты продукта
 	@echo "Тестирование {product_name}..."
 	@echo "1. Проверка доступности..."
-	@curl -f http://localhost:8080/health || echo "❌ Продукт недоступен"
+	@curl -f http://localhost:8080/health || echo "[ERROR] Продукт недоступен"
 	@echo "2. Проверка API..."
-	@curl -f http://localhost:8080/ || echo "❌ API недоступен"
+	@curl -f http://localhost:8080/ || echo "[ERROR] API недоступен"
 	@echo "3. Проверка плагина..."
-	@curl -f http://localhost:8080/FILES/plugin.js || echo "❌ Плагин недоступен"
-	@echo "✅ Тестирование завершено"
+	@curl -f http://localhost:8080/FILES/plugin.js || echo "[ERROR] Плагин недоступен"
+	@echo "[OK] Тестирование завершено"
 
 demo: ## Открыть демо-страницу
 	@echo "Открытие демо-страницы..."
@@ -739,7 +739,7 @@ dev-setup: ## Настройка окружения разработки
 	@echo "2. Копирование конфигурации..."
 	@if not exist config mkdir config
 	@copy provision.yaml config\\provision.yaml
-	@echo "✅ Окружение разработки готово"
+	@echo "[OK] Окружение разработки готово"
 
 dev-run: ## Запуск в режиме разработки
 	@echo "Запуск в режиме разработки..."
@@ -820,11 +820,11 @@ status: ## Статус всех сервисов
 health: ## Проверить здоровье всех сервисов
 	@echo "Проверка здоровья JALM Full Stack..."
 	@echo "JALM сервисы:"
-	@curl -f http://localhost:8000/health && echo "✅ Core Runner здоров" || echo "❌ Core Runner недоступен"
-	@curl -f http://localhost:8001/health && echo "✅ Tula Spec здоров" || echo "❌ Tula Spec недоступен"
-	@curl -f http://localhost:8002/health && echo "✅ Shablon Spec здоров" || echo "❌ Shablon Spec недоступен"
+	@curl -f http://localhost:8000/health && echo "[OK] Core Runner здоров" || echo "[ERROR] Core Runner недоступен"
+	@curl -f http://localhost:8001/health && echo "[OK] Tula Spec здоров" || echo "[ERROR] Tula Spec недоступен"
+	@curl -f http://localhost:8002/health && echo "[OK] Shablon Spec здоров" || echo "[ERROR] Shablon Spec недоступен"
 	@echo "Клиентские продукты:"
-	@curl -f http://localhost:8080/health && echo "✅ Демо-продукт здоров" || echo "❌ Демо-продукт недоступен"
+	@curl -f http://localhost:8080/health && echo "[OK] Демо-продукт здоров" || echo "[ERROR] Демо-продукт недоступен"
 
 test: ## Запустить все тесты
 	@echo "Запуск всех тестов JALM Full Stack..."
@@ -834,7 +834,7 @@ test: ## Запустить все тесты
 	@python test_barbershop_simple.py
 	@echo "3. Тестирование полного сценария..."
 	@python test_barbershop_scenario.py
-	@echo "✅ Все тесты завершены"
+	@echo "[OK] Все тесты завершены"
 
 demo: ## Запустить демонстрацию барбершопа
 	@echo "Запуск демонстрации барбершопа..."
@@ -852,7 +852,7 @@ build-all: ## Собрать все компоненты
 	@cd shablon_spec && make build
 	@echo "4. Сборка демо-продукта..."
 	@cd instances/demo && make build
-	@echo "✅ Все компоненты собраны"
+	@echo "[OK] Все компоненты собраны"
 
 clean: ## Очистить все
 	@echo "Очистка всех ресурсов JALM Full Stack..."
@@ -864,7 +864,7 @@ clean: ## Очистить все
 	@cd shablon_spec && make clean
 	@echo "3. Очистка Docker..."
 	@docker system prune -f
-	@echo "✅ Очистка завершена"
+	@echo "[OK] Очистка завершена"
 
 # Команды для разработки
 dev-setup: ## Настройка окружения разработки
@@ -875,7 +875,7 @@ dev-setup: ## Настройка окружения разработки
 	@cd instances/demo && npm install
 	@echo "3. Проверка Docker..."
 	@docker --version
-	@echo "✅ Окружение разработки готово"
+	@echo "[OK] Окружение разработки готово"
 
 dev-test: ## Запуск тестов в режиме разработки
 	@echo "Запуск тестов в режиме разработки..."
@@ -958,10 +958,10 @@ info: ## Информация о JALM Full Stack
         shablonServices: {json.dumps(shablon_services)}
     }};
     
-    console.log('🚀 {product_name} виджет загружен');
-    console.log('📋 Каналы:', config.channels);
-    console.log('🔧 Tula services:', config.tulaServices);
-    console.log('📋 Shablon services:', config.shablonServices);
+    console.log('[LAUNCH] {product_name} виджет загружен');
+    console.log('[LIST] Каналы:', config.channels);
+    console.log('[TOOLS] Tula services:', config.tulaServices);
+    console.log('[LIST] Shablon services:', config.shablonServices);
     
     // Инициализация виджета
     function initWidget() {{
@@ -1126,10 +1126,10 @@ info: ## Информация о JALM Full Stack
 </head>
 <body>
     <div class="container">
-        <h1>🚀 {product_name.title()} - Демонстрация</h1>
+        <h1>[LAUNCH] {product_name.title()} - Демонстрация</h1>
         
         <div class="info">
-            <h3>📋 Информация о продукте</h3>
+            <h3>[LIST] Информация о продукте</h3>
             <p><strong>Название:</strong> {product_name.title()}</p>
             <p><strong>Архитектура:</strong> JALM Full Stack</p>
             <p><strong>Каналы:</strong> {', '.join(channels)}</p>
@@ -1138,7 +1138,7 @@ info: ## Информация о JALM Full Stack
         </div>
         
         <div class="status success">
-            ✅ Продукт успешно развернут и работает!
+            [OK] Продукт успешно развернут и работает!
         </div>
         
         <div class="status info">
@@ -1146,7 +1146,7 @@ info: ## Информация о JALM Full Stack
         </div>
         
         <div class="widget-demo">
-            <h3>🎯 Демонстрация виджета</h3>
+            <h3>[TARGET] Демонстрация виджета</h3>
             <p>Виджет будет загружен автоматически:</p>
             <div id="{product_name}-widget-placeholder">
                 <p>Загрузка виджета...</p>
@@ -1154,7 +1154,7 @@ info: ## Информация о JALM Full Stack
         </div>
         
         <div class="info">
-            <h3>🔧 Техническая информация</h3>
+            <h3>[TOOLS] Техническая информация</h3>
             <p><strong>API Endpoint:</strong> <code>http://localhost:8080/</code></p>
             <p><strong>Health Check:</strong> <code>http://localhost:8080/health</code></p>
             <p><strong>Plugin:</strong> <code>http://localhost:8080/FILES/plugin.js</code></p>
@@ -1186,8 +1186,8 @@ info: ## Информация о JALM Full Stack
         # Определение типа приложения из provision.yaml
         app_type = provision.get("meta", {}).get("app_type", "node")
         
-        print(f"🔧 Создание клиентского продукта типа: {app_type}")
-        print(f"📋 Зависимости из provision.yaml:")
+        print(f"[TOOLS] Создание клиентского продукта типа: {app_type}")
+        print(f"[LIST] Зависимости из provision.yaml:")
         
         # Выводим зависимости
         dependencies = provision.get("dependencies", {})
@@ -1307,7 +1307,7 @@ const server = http.createServer((req, res) => {{
     if (path === '/') {{
         res.writeHead(200, {{ 'Content-Type': 'application/json' }});
         res.end(JSON.stringify({{
-            message: '🚀 Клиентский продукт работает!',
+            message: '[LAUNCH] Клиентский продукт работает!',
             appId: config.appId,
             architecture: 'JALM Full Stack - Правильная архитектура',
             description: 'Минимальный клиентский контейнер без JALM инфраструктуры',
@@ -1317,10 +1317,10 @@ const server = http.createServer((req, res) => {{
                 shablon: config.jalmShablonUrl
             }},
             features: [
-                '✅ Изолированный продукт',
-                '✅ Минимальный размер (~50MB)',
-                '✅ Подключение к JALM сервисам по сети',
-                '✅ Правильная архитектура JALM-land'
+                '[OK] Изолированный продукт',
+                '[OK] Минимальный размер (~50MB)',
+                '[OK] Подключение к JALM сервисам по сети',
+                '[OK] Правильная архитектура JALM-land'
             ]
         }}));
         return;
@@ -1375,12 +1375,12 @@ const server = http.createServer((req, res) => {{
 }});
 
 server.listen(port, () => {{
-    console.log(`🚀 ${{config.appId}} клиентский продукт запущен на порту ${{port}}`);
-    console.log('📋 JALM сервисы:');
+    console.log(`[LAUNCH] ${{config.appId}} клиентский продукт запущен на порту ${{port}}`);
+    console.log('[LIST] JALM сервисы:');
     console.log(`   - Core Runner: ${{config.jalmCoreUrl}}`);
     console.log(`   - Tula Spec: ${{config.jalmTulaUrl}}`);
     console.log(`   - Shablon Spec: ${{config.jalmShablonUrl}}`);
-    console.log('🎯 Архитектура: Минимальный клиент + готовые JALM образы');
+    console.log('[TARGET] Архитектура: Минимальный клиент + готовые JALM образы');
 }});
 """
         
@@ -1465,8 +1465,8 @@ async def get_shablon_template(template_name: str):
 
 if __name__ == "__main__":
     import uvicorn
-    print(f"🚀 {{config['app_id']}} client product starting...")
-    print("📋 JALM services:")
+    print(f"[LAUNCH] {{config['app_id']}} client product starting...")
+    print("[LIST] JALM services:")
     print(f"   - Core Runner: {{config['jalm_core_url']}}")
     print(f"   - Tula Spec: {{config['jalm_tula_url']}}")
     print(f"   - Shablon Spec: {{config['jalm_shablon_url']}}")
@@ -1513,7 +1513,7 @@ LOG_LEVEL=INFO
         Собирает Docker образ для готового продукта
         """
         try:
-            print(f"🐳 Сборка Docker образа для {product_name}...")
+            print(f"[DOCKER] Сборка Docker образа для {product_name}...")
             
             # Проверка Docker
             subprocess.run(["docker", "--version"], check=True, capture_output=True)
@@ -1522,14 +1522,14 @@ LOG_LEVEL=INFO
             cmd = ["docker", "build", "-t", f"{product_name}:latest", "."]
             result = subprocess.run(cmd, cwd=instance_dir, check=True, capture_output=True, text=True)
             
-            print(f"✅ Docker образ {product_name}:latest успешно собран!")
+            print(f"[OK] Docker образ {product_name}:latest успешно собран!")
             return True
             
         except subprocess.CalledProcessError as e:
-            print(f"❌ Ошибка сборки Docker образа: {e}")
+            print(f"[ERROR] Ошибка сборки Docker образа: {e}")
             return False
         except FileNotFoundError:
-            print("❌ Docker не найден")
+            print("[ERROR] Docker не найден")
             return False
 
     def launch_instance(self, instance_name: str, instance_dir: str) -> str:
@@ -1538,12 +1538,12 @@ LOG_LEVEL=INFO
         """
         # Запуск контейнеров
         try:
-            print("🐳 Запуск контейнеров...")
+            print("[DOCKER] Запуск контейнеров...")
             subprocess.run([
                 "docker-compose", "up", "-d"
             ], cwd=instance_dir, check=True)
             
-            print("✅ Контейнеры запущены:")
+            print("[OK] Контейнеры запущены:")
             print("   - Клиентский продукт: http://localhost:8080")
             print("   - JALM Core Runner: http://core-runner:8888")
             print("   - JALM Tula Spec: http://tula-spec:8001")
@@ -1566,7 +1566,7 @@ LOG_LEVEL=INFO
         provision_path = self.generate_provision_yaml(jalm_path)
         provision = self.read_provision_yaml(provision_path)
         
-        print(f"✅ Provision.yaml сгенерирован:")
+        print(f"[OK] Provision.yaml сгенерирован:")
         print(f"   - App ID: {provision.get('app_id', 'unknown')}")
         print(f"   - Environment: {provision.get('env', 'unknown')}")
         print(f"   - Tula Spec services: {len(provision.get('dependencies', {}).get('tula_spec', []))}")
@@ -1587,11 +1587,11 @@ LOG_LEVEL=INFO
             "domain": context.get("domain", "demo.mycalendar.app")
         }
         
-        print(f"📦 Создание клиентского продукта: {instance_name}")
-        print(f"📊 Параметры: {params}")
+        print(f"[PACKAGE] Создание клиентского продукта: {instance_name}")
+        print(f"[STATS] Параметры: {params}")
         
         # Шаг 3: Создание минимального клиентского продукта на основе provision.yaml
-        print("🔧 Шаг 3: Создание минимального клиентского продукта...")
+        print("[TOOLS] Шаг 3: Создание минимального клиентского продукта...")
         
         # Создание минимального клиентского продукта на основе provision.yaml
         self.create_minimal_client_product(instance_name, instance_dir, provision)
@@ -1627,7 +1627,7 @@ LOG_LEVEL=INFO
         environment = provision.get('env', 'unknown')
         readme_content = f"""# {instance_name.title()} - Клиентский продукт
 
-## 🚀 Правильная архитектура
+## [LAUNCH] Правильная архитектура
 
 Этот продукт использует **правильную архитектуру JALM-land**:
 
@@ -1644,7 +1644,7 @@ LOG_LEVEL=INFO
 - **Shablon Spec**: http://localhost:8002 (запускается отдельно)
 - Запускаются **локально** через start_jalm_services.py
 
-## 🚀 Быстрый запуск
+## [LAUNCH] Быстрый запуск
 
 ```bash
 # 1. Запуск JALM сервисов (в отдельном терминале)
@@ -1660,14 +1660,14 @@ docker-compose ps
 docker-compose logs -f {instance_name}
 ```
 
-## 📋 Доступные сервисы
+## [LIST] Доступные сервисы
 
 - **Клиентский продукт**: http://localhost:8080
 - **JALM Core Runner**: http://localhost:8000 (локальный)
 - **JALM Tula Spec**: http://localhost:8001 (локальный)
 - **JALM Shablon Spec**: http://localhost:8002 (локальный)
 
-## 🔧 Конфигурация
+## [TOOLS] Конфигурация
 
 ### App ID: {app_id}
 ### Environment: {environment}
@@ -1678,7 +1678,7 @@ docker-compose logs -f {instance_name}
 ### API Layer services:
 {api_layer_services_list}
 
-## 📁 Структура клиентского продукта
+## [DIR] Структура клиентского продукта
 
 ```
 {instance_name}/
@@ -1711,7 +1711,7 @@ docker-compose down -v
 # Ctrl+C в терминале с start_jalm_services.py
 ```
 
-## 🎯 Что это такое
+## [TARGET] Что это такое
 
 Это **клиентский продукт** (например, барбершоп), который:
 - Содержит **минимальный код** (только продукт)
@@ -1719,7 +1719,7 @@ docker-compose down -v
 - Следует **правильной архитектуре** JALM-land
 - **НЕ включает** JALM инфраструктуру в образ
 
-## 📊 Размеры образов
+## [STATS] Размеры образов
 
 - **Клиентский продукт**: ~50MB (минимальный)
 - **JALM сервисы**: запускаются локально (не в Docker)
@@ -1739,17 +1739,17 @@ docker-compose down -v
         
         # Сборка Docker образа клиентского продукта
         if self.build_docker_image(instance_name, instance_dir):
-            print(f"✅ Docker образ клиентского продукта {instance_name}:latest готов")
+            print(f"[OK] Docker образ клиентского продукта {instance_name}:latest готов")
         else:
-            print(f"⚠️ Не удалось собрать Docker образ для {instance_name}")
+            print(f"[WARNING] Не удалось собрать Docker образ для {instance_name}")
         
         # Запуск контейнеров
         url = self.launch_instance(instance_name, instance_dir)
         
-        print(f"🎉 Клиентский продукт {instance_name} создан и запущен!")
-        print(f"🌐 URL: {url}")
-        print(f"📁 Директория: {instance_dir}")
-        print(f"📊 Архитектура: Минимальный клиент + готовые JALM образы")
+        print(f"[SUCCESS] Клиентский продукт {instance_name} создан и запущен!")
+        print(f"[WEB] URL: {url}")
+        print(f"[DIR] Директория: {instance_dir}")
+        print(f"[STATS] Архитектура: Минимальный клиент + готовые JALM образы")
         
         return url
 
