@@ -1,0 +1,115 @@
+{
+  "id": "tula-spec",
+  "name": "Tula Spec",
+  "description": "Каталог функций JALM - переиспользуемые функции, валидаторы и утилиты",
+  "version": "1.0.0",
+  "type": "catalog",
+  "category": "functions",
+  "tags": ["jalm", "functions", "catalog", "validation", "utilities"],
+  "author": "JALM Foundation",
+  "license": "MIT",
+  "repository": "https://github.com/jalm-foundation/tula-spec",
+  "homepage": "https://jalm.dev/tula-spec",
+  "documentation": "https://docs.jalm.dev/tula-spec",
+  "specification": "JALM 1.0 IntentDSL",
+  "created_at": "2024-06-12T10:00:00Z",
+  "updated_at": "2024-06-12T10:00:00Z",
+  "components": {
+    "api": {
+      "type": "fastapi",
+      "port": 8001,
+      "endpoints": [
+        "/functions",
+        "/functions/{function_id}",
+        "/functions/{function_id}/execute",
+        "/functions/{function_id}/info",
+        "/health"
+      ],
+      "specification": "OpenAPI 3.0"
+    },
+    "registry": {
+      "type": "json",
+      "file": "registry/functions.json",
+      "functions_count": 3
+    },
+    "functions": {
+      "type": "python",
+      "directory": "functions/",
+      "supported_languages": ["python", "javascript"]
+    }
+  },
+  "functions": [
+    {
+      "id": "slot_validator",
+      "version": "1.3.2",
+      "description": "Валидатор слотов бронирования",
+      "tags": ["booking", "validation", "slots"],
+      "usage": "IMPORT slot_validator tula:hash~ab12fe"
+    },
+    {
+      "id": "booking_widget",
+      "version": "1.3.2",
+      "description": "Виджет для бронирования слотов",
+      "tags": ["booking", "widget", "ui"],
+      "usage": "IMPORT booking_widget v1.3.2"
+    },
+    {
+      "id": "notify_system",
+      "version": "1.0.0",
+      "description": "Система уведомлений",
+      "tags": ["notification", "communication"],
+      "usage": "IMPORT notify_system v1.0.0"
+    }
+  ],
+  "dependencies": {
+    "core-runner": ">=1.0.0",
+    "python": ">=3.11"
+  },
+  "deployment": {
+    "docker": {
+      "image": "jalm-tula-spec:latest",
+      "port": 8001,
+      "environment": {
+        "JALM_ENV": "production"
+      }
+    },
+    "kubernetes": {
+      "namespace": "jalm",
+      "replicas": 2,
+      "resources": {
+        "requests": {
+          "memory": "128Mi",
+          "cpu": "100m"
+        },
+        "limits": {
+          "memory": "256Mi",
+          "cpu": "500m"
+        }
+      }
+    }
+  },
+  "integration": {
+    "core-runner": {
+      "type": "http",
+      "endpoint": "http://tula-spec:8001",
+      "timeout": 30,
+      "retries": 3
+    },
+    "jalm-intents": {
+      "import_syntax": "IMPORT {function_id} {version|hash}",
+      "execution_syntax": "RUN {variable} := {function_id}.{method}({params})"
+    }
+  },
+  "metrics": {
+    "functions_count": 3,
+    "api_endpoints": 5,
+    "test_coverage": 85,
+    "uptime": 99.9
+  },
+  "security": {
+    "authentication": "none",
+    "authorization": "none",
+    "cors": "enabled",
+    "rate_limiting": "disabled"
+  }
+} 
