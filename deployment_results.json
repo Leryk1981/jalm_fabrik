@@ -5,5 +5,7 @@
   "webhook_configured": true,
   "lambda_deployed": true,
   "package_created": true,
-  "client_assets_generated": true
+  "client_assets_generated": true,
+  "installation_guide_created": true,
+  "docker_build_ready": true
 }
