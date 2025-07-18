@@ -1,7 +1,7 @@
 # JALM Full Stack - Корневой Makefile
 # Управление всей системой JALM Full Stack
 
-.PHONY: help start stop restart status health test clean demo build-all research-collect research-analyze research-integrate research-status
+.PHONY: help start stop restart status health test clean demo build-all research-collect research-analyze research-integrate research-status ui-dev ui-build ui-deploy
 
 # Переменные
 JALM_SERVICES_SCRIPT = start_jalm_services.py
@@ -22,6 +22,11 @@ help: ## Показать справку по командам
 	@echo "  demo       - Запустить демонстрацию барбершопа"
 	@echo "  build-all  - Собрать все компоненты"
 	@echo ""
+	@echo "UI Market Place команды:"
+	@echo "  ui-dev     - Запуск UI в режиме разработки"
+	@echo "  ui-build   - Сборка UI для продакшена"
+	@echo "  ui-deploy  - Деплой UI через Docker"
+	@echo ""
 	@echo "Research Layer команды:"
 	@echo "  research-collect   - Сбор данных через Research Layer"
 	@echo "  research-analyze   - Анализ паттернов"
@@ -35,6 +40,7 @@ start: ## Запустить JALM сервисы
 	@echo "Core Runner: http://localhost:8000"
 	@echo "Tula Spec: http://localhost:8001"
 	@echo "Shablon Spec: http://localhost:8002"
+	@echo "UI Market Place: http://localhost:3000"
 
 stop: ## Остановить JALM сервисы
 	@echo "Остановка JALM сервисов..."
@@ -51,6 +57,7 @@ status: ## Статус всех сервисов
 	@curl -s -o nul -w "   Core Runner (8000): %%{http_code}\n" http://localhost:8000/health 2>nul || echo "   Core Runner (8000): Недоступен"
 	@curl -s -o nul -w "   Tula Spec (8001): %%{http_code}\n" http://localhost:8001/health 2>nul || echo "   Tula Spec (8001): Недоступен"
 	@curl -s -o nul -w "   Shablon Spec (8002): %%{http_code}\n" http://localhost:8002/health 2>nul || echo "   Shablon Spec (8002): Недоступен"
+	@curl -s -o nul -w "   UI Market Place (3000): %%{http_code}\n" http://localhost:3000 2>nul || echo "   UI Market Place (3000): Недоступен"
 	@echo "2. Клиентские продукты:"
 	@docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | findstr demo 2>nul || echo "   Нет запущенных клиентских продуктов"
 
@@ -60,6 +67,7 @@ health: ## Проверить здоровье всех сервисов
 	@curl -f http://localhost:8000/health && echo "✅ Core Runner здоров" || echo "❌ Core Runner недоступен"
 	@curl -f http://localhost:8001/health && echo "✅ Tula Spec здоров" || echo "❌ Tula Spec недоступен"
 	@curl -f http://localhost:8002/health && echo "✅ Shablon Spec здоров" || echo "❌ Shablon Spec недоступен"
+	@curl -f http://localhost:3000 && echo "✅ UI Market Place здоров" || echo "❌ UI Market Place недоступен"
 	@echo "Клиентские продукты:"
 	@curl -f http://localhost:8080/health && echo "✅ Демо-продукт здоров" || echo "❌ Демо-продукт недоступен"
 
@@ -71,6 +79,8 @@ test: ## Запустить все тесты
 	@python test_barbershop_simple.py
 	@echo "3. Тестирование полного сценария..."
 	@python test_barbershop_scenario.py
+	@echo "4. Тестирование UI..."
+	@cd ui-market && npm test
 	@echo "✅ Все тесты завершены"
 
 demo: ## Запустить демонстрацию барбершопа
@@ -87,7 +97,9 @@ build-all: ## Собрать все компоненты
 	@cd tula_spec && make build
 	@echo "3. Сборка Shablon Spec..."
 	@cd shablon_spec && make build
-	@echo "4. Сборка демо-продукта..."
+	@echo "4. Сборка UI Market Place..."
+	@cd ui-market && npm run build
+	@echo "5. Сборка демо-продукта..."
 	@cd instances/demo && make build
 	@echo "✅ Все компоненты собраны"
 
@@ -99,9 +111,26 @@ clean: ## Очистить все
 	@cd core-runner && make kernel_clean
 	@cd tula_spec && make clean
 	@cd shablon_spec && make clean
-	@echo "3. Очистка Docker..."
+	@echo "3. Очистка UI..."
+	@cd ui-market && npm run clean
+	@echo "4. Очистка Docker..."
 	@docker system prune -f
 	@echo "✅ Очистка завершена"
+
+# UI Market Place команды
+ui-dev: ## Запуск UI в режиме разработки
+	@echo "Запуск UI Market Place в режиме разработки..."
+	@cd ui-market && npm run dev
+
+ui-build: ## Сборка UI для продакшена
+	@echo "Сборка UI Market Place для продакшена..."
+	@cd ui-market && npm run build
+	@echo "✅ UI собран для продакшена"
+
+ui-deploy: ## Деплой UI через Docker
+	@echo "Деплой UI Market Place через Docker..."
+	@cd docker && docker-compose up -d ui-market
+	@echo "✅ UI развернут на http://localhost:3000"
 
 # Команды для разработки
 dev-setup: ## Настройка окружения разработки
@@ -109,6 +138,7 @@ dev-setup: ## Настройка окружения разработки
 	@echo "1. Установка Python зависимостей..."
 	@pip install -r requirements.txt
 	@echo "2. Установка Node.js зависимостей..."
+	@cd ui-market && npm install
 	@cd instances/demo && npm install
 	@echo "3. Проверка Docker..."
 	@docker --version
@@ -146,6 +176,7 @@ info: ## Информация о JALM Full Stack
 	@echo "  Tula Spec: Порт 8001"
 	@echo "  Shablon Spec: Порт 8002"
 	@echo "  Research Layer: Порт 8003"
+	@echo "  UI Market Place: Порт 3000"
 	@echo "  Клиентские продукты: Порт 8080+"
 	@echo "  Размер клиентского продукта: ~50MB"
 	@echo "  Общий размер системы: Минимальный"

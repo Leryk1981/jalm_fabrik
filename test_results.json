@@ -13,20 +13,16 @@
   "shablon_spec_templates": {
     "list_templates": true,
     "categories": true,
-    "barbershop_basic_validation": true,
     "booking-flow_validation": true,
-    "ecommerce-order_validation": true,
-    "notification-campaign_validation": true
+    "ecommerce-basic_validation": true
   },
   "core_runner_execution": {
     "intent_execution": true,
-    "execution_id": "42c37fc4-b358-4fda-8da9-eda2cbceb577"
+    "execution_id": "80ee5ca5-2c5a-4df9-9b2f-cd70386667b6"
   },
   "integration": {
-    "barbershop_basic_dependencies": true,
     "booking-flow_dependencies": true,
-    "ecommerce-order_dependencies": true,
-    "notification-campaign_dependencies": true,
+    "ecommerce-basic_dependencies": true,
     "function_template_integration": true
   }
 }

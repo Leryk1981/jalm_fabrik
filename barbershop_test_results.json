@@ -16,10 +16,10 @@
   "shablon_spec_templates": {
     "load_success": true,
     "barbershop_template": true,
-    "template_field_name": false,
+    "template_field_name": true,
     "template_field_description": true,
-    "template_field_config_schema": false,
-    "template_field_files": false
+    "template_field_config_schema": true,
+    "template_field_files": true
   },
   "product_creation": {
     "intent_dsl_created": true,

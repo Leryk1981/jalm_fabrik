@@ -16,7 +16,7 @@ class JALMFullStackTester:
     
     def __init__(self):
         self.base_urls = {
-            "core_runner": "http://localhost:8888",
+            "core_runner": "http://localhost:8000",
             "tula_spec": "http://localhost:8001", 
             "shablon_spec": "http://localhost:8002"
         }
@@ -196,19 +196,11 @@ END
         
         try:
             response = requests.post(
-                f"{self.base_urls['core_runner']}/exec",
+                f"{self.base_urls['core_runner']}/execute",
                 json={
-                    "jalm_config": {
-                        "steps": [
-                            {
-                                "id": "test-step",
-                                "layer": "compute-script",
-                                "input": {
-                                    "script": "print('Hello from JALM Core Runner')",
-                                    "language": "py"
-                                }
-                            }
-                        ]
+                    "intent_content": test_intent,
+                    "params": {
+                        "test_param": "test_value"
                     },
                     "timeout": 30
                 }
