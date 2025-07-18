@@ -1,63 +1,20 @@
-app_id: барбершоп_'классика'
+app_id: jalm_app_v1
 env: prod infra/docker/compose
 dependencies:
-  datastore:
-    type: postgresql:15
-    tier: managed
-  api_layer:
-  - service: telegram_bot
-    version: 1.0.0
-    expose: external
-    secrets:
-    - ${{secrets.TELEGRAM_TOKEN}}
-  tula_spec:
-  - service: slot_validator
-    version: 1.3.2
-    expose: internal
-    description: Валидатор слотов бронирования
-    tags:
-    - booking
-    - validation
-    - slots
-  - service: booking_widget
-    version: 1.3.2
-    expose: internal
-    description: Виджет для бронирования слотов
-    tags:
-    - booking
-    - widget
-    - ui
-  - service: notify_system
-    version: 1.0.0
-    expose: internal
-    description: Система уведомлений
-    tags:
-    - notification
-    - communication
-  shablon_spec:
-  - service: booking-flow
-    version: 1.0.0
-    expose: internal
-    description: Полный флоу бронирования слотов с валидацией и уведомлениями
-    category: booking
-    tags:
-    - booking
-    - slots
-    - notifications
-    - validation
+  datastore: {}
+  api_layer: []
+  tula_spec: []
+  shablon_spec: []
 storage:
   files:
     type: local
     mount: /app/FILES
 net:
   ingress: nginx
-  domain: '{tenant}.run'
-  channels:
-  - telegram
+  domain: '"ivan.mycalendar.app"'
 health:
   endpoint: /health
   timeout: 3s
 meta:
   provisioner: jalm-fullstack
   force_service_discovery: true
-  app_type: node

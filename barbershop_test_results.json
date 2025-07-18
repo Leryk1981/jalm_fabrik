@@ -1,30 +1,19 @@
 {
   "jalm_services_health": {
-    "core_runner_health": true,
-    "tula_spec_health": true,
-    "shablon_spec_health": true
+    "core_runner_health": false,
+    "tula_spec_health": false,
+    "shablon_spec_health": false
   },
   "tula_spec_functions": {
-    "load_success": true,
-    "function_slot_validator": true,
-    "function_booking_widget": true,
-    "function_notify_system": true,
-    "metadata_slot_validator": true,
-    "metadata_booking_widget": true,
-    "metadata_notify_system": true
+    "load_success": false
   },
   "shablon_spec_templates": {
-    "load_success": true,
-    "barbershop_template": true,
-    "template_field_name": false,
-    "template_field_description": true,
-    "template_field_files": false,
-    "template_field_config": false
+    "load_success": false
   },
   "product_creation": {
     "intent_dsl_created": true,
     "product_created": false,
-    "error": "  File \"D:\\Projects_Clean\\Saas\\saas_provisioner.py\", line 532\n    interval: 30s\n               ^\nSyntaxError: invalid decimal literal\n"
+    "error": "Traceback (most recent call last):\n  File \"D:\\Projects_Clean\\Saas\\saas_provisioner.py\", line 1759, in <module>\n    url = provisioner.provision(\"./config.jalm\")\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\Projects_Clean\\Saas\\saas_provisioner.py\", line 1569, in provision\n    print(f\"\\u2705 Provision.yaml сгенерирован:\")\n  File \"D:\\python\\Lib\\encodings\\cp1251.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\u2705' in position 0: character maps to <undefined>\n"
   },
   "product_structure": {
     "product_exists": false
