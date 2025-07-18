@@ -1,0 +1,149 @@
+{
+  "id": "shablon-spec",
+  "name": "Shablon Spec",
+  "description": "Каталог шаблонов JALM - готовые JALM-интенты для различных сценариев",
+  "version": "1.0.0",
+  "type": "catalog",
+  "category": "templates",
+  "tags": ["jalm", "templates", "catalog", "intents", "workflows"],
+  "author": "JALM Foundation",
+  "license": "MIT",
+  "repository": "https://github.com/jalm-foundation/shablon-spec",
+  "homepage": "https://jalm.dev/shablon-spec",
+  "documentation": "https://docs.jalm.dev/shablon-spec",
+  "specification": "JALM 1.0 IntentDSL",
+  "created_at": "2024-06-12T11:00:00Z",
+  "updated_at": "2024-06-12T11:00:00Z",
+  "components": {
+    "api": {
+      "type": "fastapi",
+      "port": 8002,
+      "endpoints": [
+        "/templates",
+        "/templates/{template_id}",
+        "/templates/{template_id}/content",
+        "/templates/{template_id}/execute",
+        "/templates/validate",
+        "/templates/upload",
+        "/categories",
+        "/categories/{category}/templates"
+      ],
+      "specification": "OpenAPI 3.0"
+    },
+    "registry": {
+      "type": "json",
+      "file": "registry/templates.json",
+      "templates_count": 3
+    },
+    "templates": {
+      "type": "jalm",
+      "directory": "templates/",
+      "file_extension": ".jalm"
+    }
+  },
+  "templates": [
+    {
+      "id": "booking-flow",
+      "version": "1.0.0",
+      "description": "Полный флоу бронирования слотов с валидацией и уведомлениями",
+      "category": "booking",
+      "tags": ["booking", "slots", "notifications", "validation"],
+      "usage": "IMPORT booking-flow v1.0.0"
+    },
+    {
+      "id": "ecommerce-order",
+      "version": "1.0.0",
+      "description": "Обработка заказа в e-commerce с валидацией и уведомлениями",
+      "category": "ecommerce",
+      "tags": ["ecommerce", "orders", "payments", "notifications"],
+      "usage": "IMPORT ecommerce-order v1.0.0"
+    },
+    {
+      "id": "notification-campaign",
+      "version": "1.0.0",
+      "description": "Кампания уведомлений с расписанием и аналитикой",
+      "category": "communication",
+      "tags": ["notifications", "campaign", "scheduling", "analytics"],
+      "usage": "IMPORT notification-campaign v1.0.0"
+    }
+  ],
+  "dependencies": {
+    "core-runner": ">=1.0.0",
+    "tula-spec": ">=1.0.0",
+    "python": ">=3.11"
+  },
+  "deployment": {
+    "docker": {
+      "image": "jalm-shablon-spec:latest",
+      "port": 8002,
+      "environment": {
+        "JALM_ENV": "production"
+      }
+    },
+    "kubernetes": {
+      "namespace": "jalm",
+      "replicas": 2,
+      "resources": {
+        "requests": {
+          "memory": "256Mi",
+          "cpu": "200m"
+        },
+        "limits": {
+          "memory": "512Mi",
+          "cpu": "1000m"
+        }
+      }
+    }
+  },
+  "integration": {
+    "core-runner": {
+      "type": "http",
+      "endpoint": "http://shablon-spec:8002",
+      "timeout": 60,
+      "retries": 3
+    },
+    "tula-spec": {
+      "type": "http",
+      "endpoint": "http://tula-spec:8001",
+      "timeout": 30,
+      "retries": 3
+    },
+    "jalm-intents": {
+      "import_syntax": "IMPORT {template_id} {version|hash}",
+      "execution_syntax": "RUN {variable} := {template_id}.execute({params})"
+    }
+  },
+  "categories": [
+    {
+      "id": "booking",
+      "name": "Booking & Scheduling",
+      "description": "Системы бронирования, календари и расписания",
+      "templates_count": 1
+    },
+    {
+      "id": "ecommerce",
+      "name": "E-commerce",
+      "description": "Корзины покупок, обработка заказов, платежные системы",
+      "templates_count": 1
+    },
+    {
+      "id": "communication",
+      "name": "Communication",
+      "description": "Уведомления, email маркетинг, чат-боты",
+      "templates_count": 1
+    }
+  ],
+  "metrics": {
+    "templates_count": 3,
+    "categories_count": 3,
+    "api_endpoints": 8,
+    "test_coverage": 90,
+    "uptime": 99.9
+  },
+  "security": {
+    "authentication": "none",
+    "authorization": "none",
+    "cors": "enabled",
+    "rate_limiting": "disabled"
+  }
+} 
