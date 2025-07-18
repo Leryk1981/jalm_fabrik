@@ -1,0 +1,79 @@
+{
+  "engine_id": "core-runner",
+  "name": "JALM Core Runner",
+  "description": "Исполнительное ядро для JALM Full Stack с поддержкой 6 слоёв исполнения",
+  "version": "1.0.0",
+  "image": "jalm/core-runner:latest",
+  "layers": [
+    "io-http",
+    "io-db", 
+    "io-file",
+    "compute-script",
+    "render-html",
+    "notify-mq"
+  ],
+  "api_version": 1,
+  "entrypoint": "/usr/bin/runner",
+  "pull_url": "ghcr.io/jalm/core-runner:latest",
+  "architecture": {
+    "supported_languages": ["python", "javascript", "typescript", "go", "rust"],
+    "isolation_type": "container",
+    "security_level": "high",
+    "performance": "high"
+  },
+  "specifications": {
+    "total_atomics": 47,
+    "total_layers": 6,
+    "supported_side_effects": ["none", "read", "write"],
+    "io_types": ["in_call", "persistent", "local", "network", "in_memory", "memory"],
+    "frequencies": ["event", "high", "medium", "low"]
+  },
+  "endpoints": {
+    "health": "GET /health",
+    "execute": "POST /exec",
+    "status": "GET /exec/{execution_id}",
+    "list": "GET /exec"
+  },
+  "requirements": {
+    "docker": "20.10+",
+    "memory": "512MB",
+    "cpu": "1 core",
+    "storage": "1GB"
+  },
+  "environment_variables": {
+    "JALM_ENV": "production",
+    "PYTHONPATH": "/app",
+    "PYTHONUNBUFFERED": "1"
+  },
+  "ports": {
+    "api": 8888
+  },
+  "volumes": {
+    "/data": "persistent storage",
+    "/tmp/jalm": "temporary files"
+  },
+  "security": {
+    "user": "jalm",
+    "group": "jalm",
+    "capabilities": [],
+    "readonly_root": false
+  },
+  "monitoring": {
+    "health_check": "/health",
+    "metrics": "/metrics",
+    "logs": "structured logging"
+  },
+  "documentation": {
+    "api_docs": "http://localhost:8888/docs",
+    "swagger": "http://localhost:8888/redoc",
+    "github": "https://github.com/jalm/core-runner"
+  },
+  "build_info": {
+    "build_date": "2024-01-18T10:00:00Z",
+    "git_commit": "92e9066",
+    "base_image": "python:3.11-alpine",
+    "size": "~150MB"
+  },
+  "license": "MIT",
+  "maintainer": "JALM Team <team@jalm.io>"
+} 

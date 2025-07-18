@@ -1,0 +1,63 @@
+id: exec_http
+layer: io-http
+description: "Выполнение HTTP-запросов к внешним API"
+input:
+  method:
+    type: string
+    required: true
+    default: "GET"
+    enum: ["GET", "POST", "PUT", "DELETE", "PATCH"]
+  url:
+    type: string
+    required: true
+    description: "URL для запроса"
+  headers:
+    type: object
+    required: false
+    default: {}
+    description: "HTTP-заголовки"
+  body:
+    type: object
+    required: false
+    default: null
+    description: "Тело запроса (для POST/PUT/PATCH)"
+  timeout:
+    type: integer
+    required: false
+    default: 30
+    description: "Таймаут в секундах"
+output:
+  status:
+    type: integer
+    description: "HTTP-статус код"
+  body:
+    type: object
+    description: "Тело ответа"
+  headers:
+    type: object
+    description: "Заголовки ответа"
+  error:
+    type: string
+    description: "Сообщение об ошибке (если есть)"
+lang: ["js", "py", "go"]
+default_fn: fetch_wrapper
+side_effect: none
+io_type: in_call
+freq: event
+blocker: null
+examples:
+  - name: "GET запрос"
+    input:
+      method: "GET"
+      url: "https://api.example.com/users"
+    output:
+      status: 200
+      body: {"users": [...]}
+  - name: "POST запрос с данными"
+    input:
+      method: "POST"
+      url: "https://api.example.com/users"
+      body: {"name": "John", "email": "john@example.com"}
+    output:
+      status: 201
+      body: {"id": 123, "name": "John"} 

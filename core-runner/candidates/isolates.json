@@ -1,0 +1,49 @@
+{
+  "generated_at": "2025-07-18T10:26:59.839099",
+  "total_candidates": 3,
+  "recommendations": [
+    {
+      "rank": 1,
+      "name": "Deno",
+      "description": "Secure runtime for JavaScript and TypeScript",
+      "language": "typescript",
+      "isolation_type": "runtime",
+      "performance": "high",
+      "security_level": "high",
+      "docker_support": true,
+      "github_url": "https://github.com/denoland/deno",
+      "stars": 40000,
+      "complexity": "low",
+      "license": "MIT"
+    },
+    {
+      "rank": 2,
+      "name": "Pyodide",
+      "description": "Python with the scientific stack compiled to WebAssembly",
+      "language": "python",
+      "isolation_type": "wasm",
+      "performance": "medium",
+      "security_level": "high",
+      "docker_support": true,
+      "github_url": "https://github.com/pyodide/pyodide",
+      "stars": 12000,
+      "complexity": "medium",
+      "license": "MPL-2.0"
+    },
+    {
+      "rank": 3,
+      "name": "Kata Containers",
+      "description": "Secure container runtime with VM isolation",
+      "language": "go",
+      "isolation_type": "vm",
+      "performance": "high",
+      "security_level": "high",
+      "docker_support": true,
+      "github_url": "https://github.com/kata-containers/kata-containers",
+      "stars": 4000,
+      "complexity": "medium",
+      "license": "Apache-2.0"
+    }
+  ],
+  "summary": {
+    "best_vm_solution": 

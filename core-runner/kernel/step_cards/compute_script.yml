@@ -1,0 +1,74 @@
+id: compute_script
+layer: compute-script
+description: "Выполнение вычислительных скриптов и обработка данных"
+input:
+  script:
+    type: string
+    required: true
+    description: "Код для выполнения"
+  language:
+    type: string
+    required: true
+    enum: ["py", "js"]
+    description: "Язык программирования"
+  variables:
+    type: object
+    required: false
+    default: {}
+    description: "Переменные, доступные в скрипте"
+  timeout:
+    type: integer
+    required: false
+    default: 30
+    description: "Таймаут выполнения в секундах"
+  memory_limit:
+    type: integer
+    required: false
+    default: 100
+    description: "Лимит памяти в МБ"
+output:
+  result:
+    type: object
+    description: "Результат выполнения скрипта"
+  stdout:
+    type: string
+    description: "Стандартный вывод"
+  stderr:
+    type: string
+    description: "Стандартная ошибка"
+  execution_time:
+    type: float
+    description: "Время выполнения в секундах"
+  memory_used:
+    type: integer
+    description: "Использованная память в МБ"
+  error:
+    type: string
+    description: "Сообщение об ошибке (если есть)"
+lang: ["py", "js"]
+default_fn: execute_script
+side_effect: none
+io_type: in_memory
+freq: high
+blocker: cpu
+examples:
+  - name: "Математические вычисления"
+    input:
+      script: "return a + b * c"
+      language: "js"
+      variables: {"a": 10, "b": 5, "c": 2}
+    output:
+      result: 20
+      execution_time: 0.001
+  - name: "Обработка данных"
+    input:
+      script: |
+        import json
+        data = json.loads(input_data)
+        result = [item for item in data if item['status'] == 'active']
+        return len(result)
+      language: "py"
+      variables: {"input_data": '[{"id": 1, "status": "active"}, {"id": 2, "status": "inactive"}]'}
+    output:
+      result: 1
+      execution_time: 0.005 

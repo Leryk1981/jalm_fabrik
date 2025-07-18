@@ -1,0 +1,56 @@
+id: db_query
+layer: io-db
+description: "Выполнение SQL-запросов к базе данных"
+input:
+  query:
+    type: string
+    required: true
+    description: "SQL-запрос"
+  params:
+    type: object
+    required: false
+    default: {}
+    description: "Параметры для подготовленного запроса"
+  connection_string:
+    type: string
+    required: false
+    description: "Строка подключения к БД (если не указана, используется дефолтная)"
+  timeout:
+    type: integer
+    required: false
+    default: 10
+    description: "Таймаут запроса в секундах"
+output:
+  rows:
+    type: array
+    description: "Результаты запроса"
+  row_count:
+    type: integer
+    description: "Количество возвращённых строк"
+  execution_time:
+    type: float
+    description: "Время выполнения запроса в секундах"
+  error:
+    type: string
+    description: "Сообщение об ошибке (если есть)"
+lang: ["py", "js"]
+default_fn: execute_query
+side_effect: read
+io_type: persistent
+freq: high
+blocker: connection
+examples:
+  - name: "Простой SELECT"
+    input:
+      query: "SELECT * FROM users WHERE status = ?"
+      params: ["active"]
+    output:
+      rows: [{"id": 1, "name": "John", "status": "active"}]
+      row_count: 1
+  - name: "Подсчёт записей"
+    input:
+      query: "SELECT COUNT(*) as count FROM orders WHERE date >= ?"
+      params: ["2024-01-01"]
+    output:
+      rows: [{"count": 150}]
+      row_count: 1 

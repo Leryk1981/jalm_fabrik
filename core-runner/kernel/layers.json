@@ -1,0 +1,116 @@
+{
+  "layers": {
+    "io-http": {
+      "description": "HTTP-запросы и API-вызовы",
+      "atomics": [
+        "exec_http",
+        "auth_verify",
+        "auth_token",
+        "notify_webhook",
+        "send_telegram",
+        "send_slack",
+        "send_discord",
+        "create_calendar_event",
+        "read_calendar",
+        "update_calendar",
+        "delete_calendar",
+        "payment_process",
+        "payment_verify",
+        "payment_refund"
+      ],
+      "languages": ["js", "py", "go"],
+      "side_effects": ["none", "read", "write"],
+      "io_type": ["in_call", "network"],
+      "freq": ["event", "high", "medium", "low"]
+    },
+    "io-db": {
+      "description": "Операции с базами данных",
+      "atomics": [
+        "db_query",
+        "db_insert",
+        "db_update",
+        "db_delete"
+      ],
+      "languages": ["py", "js"],
+      "side_effects": ["read", "write"],
+      "io_type": ["persistent"],
+      "freq": ["high", "medium", "low"],
+      "blockers": ["connection"]
+    },
+    "io-file": {
+      "description": "Файловые операции",
+      "atomics": [
+        "file_read",
+        "file_write",
+        "file_upload",
+        "file_download",
+        "render_pdf",
+        "log_write"
+      ],
+      "languages": ["py"],
+      "side_effects": ["read", "write"],
+      "io_type": ["local", "network"],
+      "freq": ["high", "medium", "low"],
+      "blockers": ["permissions", "bandwidth", "disk"]
+    },
+    "compute-script": {
+      "description": "Вычислительные операции",
+      "atomics": [
+        "compute_script",
+        "transform_data",
+        "validate_input",
+        "encrypt_data",
+        "decrypt_data",
+        "compress_data",
+        "decompress_data",
+        "parse_xml",
+        "parse_json",
+        "parse_csv",
+        "generate_uuid",
+        "get_timestamp",
+        "format_date"
+      ],
+      "languages": ["py", "js"],
+      "side_effects": ["none"],
+      "io_type": ["in_memory"],
+      "freq": ["high", "medium", "low"],
+      "blockers": ["cpu", "crypto", "parser"]
+    },
+    "render-html": {
+      "description": "Рендеринг и генерация контента",
+      "atomics": [
+        "render_html",
+        "render_json"
+      ],
+      "languages": ["js", "py"],
+      "side_effects": ["none"],
+      "io_type": ["in_memory"],
+      "freq": ["high"],
+      "blockers": ["template", "data"]
+    },
+    "notify-mq": {
+      "description": "Уведомления и очереди сообщений",
+      "atomics": [
+        "notify_email",
+        "notify_sms",
+        "notify_mq",
+        "log_send",
+        "cache_get",
+        "cache_set"
+      ],
+      "languages": ["py"],
+      "side_effects": ["read", "write"],
+      "io_type": ["network", "memory"],
+      "freq": ["high", "medium", "low"],
+      "blockers": ["smtp", "gateway", "broker", "service", "storage"]
+    }
+  },
+  "metadata": {
+    "total_atomics": 47,
+    "total_layers": 6,
+    "languages_supported": ["py", "js", "go"],
+    "side_effects": ["none", "read", "write"],
+    "io_types": ["in_call", "persistent", "local", "network", "in_memory", "memory"],
+    "frequencies": ["event", "high", "medium", "low"]
+  }
+} 
