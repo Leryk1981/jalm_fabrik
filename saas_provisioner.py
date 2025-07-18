@@ -629,6 +629,276 @@ networks:
         
         return compose_path
 
+    def create_product_makefile(self, product_name: str, instance_dir: str, provision: Dict[str, Any]) -> str:
+        """
+        Создает Makefile для управления клиентским продуктом
+        """
+        app_id = provision.get('app_id', 'unknown')
+        tula_services = provision.get('dependencies', {}).get('tula_spec', [])
+        api_layer_services = provision.get('dependencies', {}).get('api_layer', [])
+        
+        # Windows-совместимый Makefile
+        makefile_content = f"""# {product_name.title()} - Makefile для управления продуктом
+# JALM Full Stack - Правильная архитектура
+
+.PHONY: help build run stop restart logs clean status health test demo
+
+# Переменные
+COMPOSE_FILE = docker-compose.yml
+PRODUCT_NAME = {product_name}
+APP_ID = {app_id}
+
+help: ## Показать справку по командам
+	@echo "Доступные команды для {product_name}:"
+	@echo "  help     - Показать эту справку"
+	@echo "  build    - Собрать Docker образ"
+	@echo "  run      - Запустить продукт"
+	@echo "  stop     - Остановить продукт"
+	@echo "  restart  - Перезапустить продукт"
+	@echo "  logs     - Показать логи"
+	@echo "  status   - Статус контейнеров"
+	@echo "  health   - Проверить здоровье"
+	@echo "  test     - Запустить тесты"
+	@echo "  clean    - Очистить все"
+	@echo "  demo     - Открыть демо-страницу"
+
+build: ## Собрать Docker образ
+	@echo "Сборка Docker образа {product_name}..."
+	docker-compose -f $(COMPOSE_FILE) build --no-cache
+	@echo "Образ собран успешно"
+
+build-fast: ## Быстрая сборка (без --no-cache)
+	@echo "Быстрая сборка Docker образа..."
+	docker-compose -f $(COMPOSE_FILE) build
+	@echo "Образ собран успешно"
+
+run: ## Запустить продукт
+	@echo "Запуск {product_name}..."
+	docker-compose -f $(COMPOSE_FILE) up -d
+	@echo "Продукт запущен"
+	@echo "Доступен по адресу: http://localhost:8080"
+	@echo "Демо-страница: http://localhost:8080/FILES/{product_name}.html"
+
+stop: ## Остановить продукт
+	@echo "Остановка {product_name}..."
+	docker-compose -f $(COMPOSE_FILE) down
+	@echo "Продукт остановлен"
+
+restart: ## Перезапустить продукт
+	@echo "Перезапуск {product_name}..."
+	docker-compose -f $(COMPOSE_FILE) restart
+	@echo "Продукт перезапущен"
+
+logs: ## Показать логи продукта
+	@echo "Логи {product_name}:"
+	docker-compose -f $(COMPOSE_FILE) logs -f
+
+status: ## Статус контейнеров
+	@echo "Статус контейнеров:"
+	docker-compose -f $(COMPOSE_FILE) ps
+
+health: ## Проверить здоровье продукта
+	@echo "Проверка здоровья {product_name}..."
+	@curl -s -o /dev/null -w "HTTP Status: %{{http_code}}\\n" http://localhost:8080/health || echo "Продукт недоступен"
+
+test: ## Запустить тесты продукта
+	@echo "Тестирование {product_name}..."
+	@echo "1. Проверка доступности..."
+	@curl -f http://localhost:8080/health || echo "❌ Продукт недоступен"
+	@echo "2. Проверка API..."
+	@curl -f http://localhost:8080/ || echo "❌ API недоступен"
+	@echo "3. Проверка плагина..."
+	@curl -f http://localhost:8080/FILES/plugin.js || echo "❌ Плагин недоступен"
+	@echo "✅ Тестирование завершено"
+
+demo: ## Открыть демо-страницу
+	@echo "Открытие демо-страницы..."
+	@start http://localhost:8080/FILES/{product_name}.html || echo "Откройте в браузере: http://localhost:8080/FILES/{product_name}.html"
+
+clean: ## Очистить все (контейнеры, образы, тома)
+	@echo "Очистка всех ресурсов {product_name}..."
+	docker-compose -f $(COMPOSE_FILE) down -v --rmi all
+	docker system prune -f
+	@echo "Очистка завершена"
+
+# Команды для работы с JALM сервисами
+jalm-status: ## Статус JALM сервисов
+	@echo "Статус JALM сервисов:"
+	@echo "Core Runner (8000):"
+	@curl -s -o /dev/null -w "  HTTP Status: %{{http_code}}\\n" http://localhost:8000/health || echo "  ❌ Недоступен"
+	@echo "Tula Spec (8001):"
+	@curl -s -o /dev/null -w "  HTTP Status: %{{http_code}}\\n" http://localhost:8001/health || echo "  ❌ Недоступен"
+	@echo "Shablon Spec (8002):"
+	@curl -s -o /dev/null -w "  HTTP Status: %{{http_code}}\\n" http://localhost:8002/health || echo "  ❌ Недоступен"
+
+# Команды для разработки
+dev-setup: ## Настройка окружения разработки
+	@echo "Настройка окружения разработки..."
+	@echo "1. Установка зависимостей..."
+	npm install
+	@echo "2. Копирование конфигурации..."
+	@if not exist config mkdir config
+	@copy provision.yaml config\\provision.yaml
+	@echo "✅ Окружение разработки готово"
+
+dev-run: ## Запуск в режиме разработки
+	@echo "Запуск в режиме разработки..."
+	npm start
+
+# Информация о продукте
+info: ## Информация о продукте
+	@echo "Информация о {product_name}:"
+	@echo "  App ID: {app_id}"
+	@echo "  Архитектура: JALM Full Stack"
+	@echo "  Тип: Клиентский продукт"
+	@echo "  Размер: ~50MB"
+	@echo "  Порт: 8080"
+	@echo "  Tula Services: {len(tula_services)}"
+	@echo "  API Layer Services: {len(api_layer_services)}"
+"""
+        
+        makefile_path = os.path.join(instance_dir, "Makefile")
+        with open(makefile_path, 'w', encoding='utf-8') as f:
+            f.write(makefile_content)
+        
+        return makefile_path
+
+    def create_root_makefile(self) -> str:
+        """
+        Создает корневой Makefile для управления всей JALM Full Stack системой
+        """
+        makefile_content = """# JALM Full Stack - Корневой Makefile
+# Управление всей системой JALM Full Stack
+
+.PHONY: help start stop restart status health test clean demo build-all
+
+# Переменные
+JALM_SERVICES_SCRIPT = start_jalm_services.py
+
+help: ## Показать справку по командам
+	@echo "JALM Full Stack - Корневой Makefile"
+	@echo "====================================="
+	@echo ""
+	@echo "Доступные команды:"
+	@echo "  help       - Показать эту справку"
+	@echo "  start      - Запустить JALM сервисы"
+	@echo "  stop       - Остановить JALM сервисы"
+	@echo "  restart    - Перезапустить JALM сервисы"
+	@echo "  status     - Статус всех сервисов"
+	@echo "  health     - Проверить здоровье всех сервисов"
+	@echo "  test       - Запустить все тесты"
+	@echo "  clean      - Очистить все"
+	@echo "  demo       - Запустить демонстрацию барбершопа"
+	@echo "  build-all  - Собрать все компоненты"
+
+start: ## Запустить JALM сервисы
+	@echo "Запуск JALM Full Stack сервисов..."
+	@python $(JALM_SERVICES_SCRIPT)
+	@echo "JALM сервисы запущены"
+	@echo "Core Runner: http://localhost:8000"
+	@echo "Tula Spec: http://localhost:8001"
+	@echo "Shablon Spec: http://localhost:8002"
+
+stop: ## Остановить JALM сервисы
+	@echo "Остановка JALM сервисов..."
+	@echo "Нажмите Ctrl+C в терминале с JALM сервисами"
+	@echo "Или закройте терминал с start_jalm_services.py"
+
+restart: ## Перезапустить JALM сервисы
+	@echo "Перезапуск JALM сервисов..."
+	@echo "Сначала остановите сервисы (Ctrl+C), затем запустите: make start"
+
+status: ## Статус всех сервисов
+	@echo "Статус JALM Full Stack:"
+	@echo "1. JALM сервисы:"
+	@curl -s -o /dev/null -w "   Core Runner (8000): %{http_code}\\n" http://localhost:8000/health || echo "   Core Runner (8000): ❌ Недоступен"
+	@curl -s -o /dev/null -w "   Tula Spec (8001): %{http_code}\\n" http://localhost:8001/health || echo "   Tula Spec (8001): ❌ Недоступен"
+	@curl -s -o /dev/null -w "   Shablon Spec (8002): %{http_code}\\n" http://localhost:8002/health || echo "   Shablon Spec (8002): ❌ Недоступен"
+	@echo "2. Клиентские продукты:"
+	@docker ps --format "table {{.Names}}\\t{{.Status}}\\t{{.Ports}}" | grep demo || echo "   Нет запущенных клиентских продуктов"
+
+health: ## Проверить здоровье всех сервисов
+	@echo "Проверка здоровья JALM Full Stack..."
+	@echo "JALM сервисы:"
+	@curl -f http://localhost:8000/health && echo "✅ Core Runner здоров" || echo "❌ Core Runner недоступен"
+	@curl -f http://localhost:8001/health && echo "✅ Tula Spec здоров" || echo "❌ Tula Spec недоступен"
+	@curl -f http://localhost:8002/health && echo "✅ Shablon Spec здоров" || echo "❌ Shablon Spec недоступен"
+	@echo "Клиентские продукты:"
+	@curl -f http://localhost:8080/health && echo "✅ Демо-продукт здоров" || echo "❌ Демо-продукт недоступен"
+
+test: ## Запустить все тесты
+	@echo "Запуск всех тестов JALM Full Stack..."
+	@echo "1. Тестирование JALM сервисов..."
+	@python test_discovery.py
+	@echo "2. Тестирование демо-продукта..."
+	@python test_barbershop_simple.py
+	@echo "3. Тестирование полного сценария..."
+	@python test_barbershop_scenario.py
+	@echo "✅ Все тесты завершены"
+
+demo: ## Запустить демонстрацию барбершопа
+	@echo "Запуск демонстрации барбершопа..."
+	@python demo_barbershop_deployment.py
+	@echo "Демонстрация запущена"
+	@echo "Доступна по адресу: http://localhost:8080"
+
+build-all: ## Собрать все компоненты
+	@echo "Сборка всех компонентов JALM Full Stack..."
+	@echo "1. Сборка Core Runner..."
+	@cd core-runner && make kernel_build
+	@echo "2. Сборка Tula Spec..."
+	@cd tula_spec && make build
+	@echo "3. Сборка Shablon Spec..."
+	@cd shablon_spec && make build
+	@echo "4. Сборка демо-продукта..."
+	@cd instances/demo && make build
+	@echo "✅ Все компоненты собраны"
+
+clean: ## Очистить все
+	@echo "Очистка всех ресурсов JALM Full Stack..."
+	@echo "1. Очистка клиентских продуктов..."
+	@cd instances/demo && make clean
+	@echo "2. Очистка JALM сервисов..."
+	@cd core-runner && make kernel_clean
+	@cd tula_spec && make clean
+	@cd shablon_spec && make clean
+	@echo "3. Очистка Docker..."
+	@docker system prune -f
+	@echo "✅ Очистка завершена"
+
+# Команды для разработки
+dev-setup: ## Настройка окружения разработки
+	@echo "Настройка окружения разработки JALM Full Stack..."
+	@echo "1. Установка Python зависимостей..."
+	@pip install -r requirements.txt
+	@echo "2. Установка Node.js зависимостей..."
+	@cd instances/demo && npm install
+	@echo "3. Проверка Docker..."
+	@docker --version
+	@echo "✅ Окружение разработки готово"
+
+dev-test: ## Запуск тестов в режиме разработки
+	@echo "Запуск тестов в режиме разработки..."
+	@python -m pytest tests/ -v
+
+# Информация о системе
+info: ## Информация о JALM Full Stack
+	@echo "JALM Full Stack - Информация о системе:"
+	@echo "  Архитектура: Правильная JALM-land"
+	@echo "  Core Runner: Порт 8000"
+	@echo "  Tula Spec: Порт 8001"
+	@echo "  Shablon Spec: Порт 8002"
+	@echo "  Клиентские продукты: Порт 8080+"
+	@echo "  Размер клиентского продукта: ~50MB"
+	@echo "  Общий размер системы: Минимальный"
+"""
+        
+        makefile_path = "Makefile"
+        with open(makefile_path, 'w', encoding='utf-8') as f:
+            f.write(makefile_content)
+        
+        return makefile_path
+
     def create_sample_product_files(self, product_name: str, instance_dir: str, params: Dict[str, Any], provision: Dict[str, Any]) -> None:
         """
         Создает пример файлов готового продукта на основе provision.yaml
@@ -1342,6 +1612,9 @@ LOG_LEVEL=INFO
         
         # Создание Docker Compose с готовыми JALM образами
         self.create_production_docker_compose(instance_name, instance_dir, provision)
+        
+        # Создание Makefile для управления продуктом
+        self.create_product_makefile(instance_name, instance_dir, provision)
         
         # Создание README для продукта
         jalm_version = provision.get("meta", {}).get("jalm_version", "1.0.0")
