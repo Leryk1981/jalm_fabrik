@@ -18,121 +18,131 @@ NC = \033[0m # No Color
 .PHONY: help kernel_raw kernel_group kernel_cards search_isolate kernel_build kernel_push kernel_test kernel_clean
 
 help: ## Показать справку
-	@echo "$(BLUE)JALM Core Runner - Команды сборки$(NC)"
+	@echo "JALM Core Runner - Команды сборки"
 	@echo ""
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "$(GREEN)%-20s$(NC) %s\n", $$1, $$2}'
+	@echo "Доступные команды:"
+	@echo "  kernel_raw      - Этап 1: Вычленение атомов исполнения"
+	@echo "  kernel_group    - Этап 2: Группировка атомов в слои"
+	@echo "  kernel_cards    - Этап 3: Детализированные шаги-карточки"
+	@echo "  search_isolate  - Этап 4: Поиск готовых движков"
+	@echo "  kernel_build    - Этап 5: Сборка ядра"
+	@echo "  kernel_push     - Этап 6: Публикация ядра в registry"
+	@echo "  kernel_test     - Тестирование ядра"
+	@echo "  kernel_clean    - Очистка сборки"
+	@echo "  kernel          - Полная сборка ядра"
+	@echo "  kernel_full     - Полный цикл: сборка + тест + публикация"
 
 kernel_raw: ## Этап 1: Вычленение атомов исполнения
-	@echo "$(YELLOW)🔍 Этап 1: Вычленение атомов исполнения$(NC)"
-	@if [ ! -f kernel/raw_atomics.csv ]; then \
-		echo "$(RED)❌ Файл kernel/raw_atomics.csv не найден$(NC)"; \
-		exit 1; \
-	fi
-	@echo "$(GREEN)✅ Атомы исполнения готовы: $(shell wc -l < kernel/raw_atomics.csv) записей$(NC)"
+	@echo "Этап 1: Вычленение атомов исполнения"
+	@if not exist kernel\raw_atomics.csv (
+		echo "Файл kernel/raw_atomics.csv не найден"
+		exit /b 1
+	)
+	@echo "Атомы исполнения готовы"
 
 kernel_group: ## Этап 2: Группировка атомов в слои
-	@echo "$(YELLOW)📊 Этап 2: Группировка атомов в слои$(NC)"
-	@if [ ! -f kernel/layers.json ]; then \
-		echo "$(RED)❌ Файл kernel/layers.json не найден$(NC)"; \
-		exit 1; \
-	fi
-	@echo "$(GREEN)✅ Слои сгруппированы: $(shell jq '.metadata.total_layers' kernel/layers.json) слоёв$(NC)"
+	@echo "Этап 2: Группировка атомов в слои"
+	@if not exist kernel\layers.json (
+		echo "Файл kernel/layers.json не найден"
+		exit /b 1
+	)
+	@echo "Слои сгруппированы"
 
 kernel_cards: ## Этап 3: Детализированные шаги-карточки
-	@echo "$(YELLOW)📋 Этап 3: Детализированные шаги-карточки$(NC)"
-	@if [ ! -d kernel/step_cards ]; then \
-		echo "$(RED)❌ Директория kernel/step_cards не найдена$(NC)"; \
-		exit 1; \
-	fi
-	@echo "$(GREEN)✅ Карточки шагов готовы: $(shell ls kernel/step_cards/*.yml | wc -l) карточек$(NC)"
+	@echo "Этап 3: Детализированные шаги-карточки"
+	@if not exist kernel\step_cards (
+		echo "Директория kernel/step_cards не найдена"
+		exit /b 1
+	)
+	@echo "Карточки шагов готовы"
 
 search_isolate: ## Этап 4: Поиск готовых движков
-	@echo "$(YELLOW)🔍 Этап 4: Поиск готовых движков$(NC)"
-	@if [ ! -f scripts/search_micro_isolates.py ]; then \
-		echo "$(RED)❌ Скрипт поиска не найден$(NC)"; \
-		exit 1; \
-	fi
+	@echo "Этап 4: Поиск готовых движков"
+	@if not exist scripts\search_micro_isolates.py (
+		echo "Скрипт поиска не найден"
+		exit /b 1
+	)
 	@python scripts/search_micro_isolates.py
-	@echo "$(GREEN)✅ Поиск движков завершён$(NC)"
+	@echo "Поиск движков завершён"
 
 kernel_build: ## Этап 5: Сборка ядра
-	@echo "$(YELLOW)🔨 Этап 5: Сборка ядра jalm/core-runner:$(VERSION)$(NC)"
-	@if [ ! -f Dockerfile ]; then \
-		echo "$(RED)❌ Dockerfile не найден$(NC)"; \
-		exit 1; \
-	fi
-	@if [ ! -f requirements.txt ]; then \
-		echo "$(RED)❌ requirements.txt не найден$(NC)"; \
-		exit 1; \
-	fi
+	@echo "Этап 5: Сборка ядра jalm/core-runner:$(VERSION)"
+	@if not exist Dockerfile (
+		echo "Dockerfile не найден"
+		exit /b 1
+	)
+	@if not exist requirements.txt (
+		echo "requirements.txt не найден"
+		exit /b 1
+	)
 	docker build -t $(IMAGE_NAME):$(VERSION) -t $(IMAGE_NAME):latest .
-	@echo "$(GREEN)✅ Образ собран: $(IMAGE_NAME):$(VERSION)$(NC)"
+	@echo "Образ собран: $(IMAGE_NAME):$(VERSION)"
 
 kernel_push: ## Этап 6: Публикация ядра в registry
-	@echo "$(YELLOW)🚀 Этап 6: Публикация ядра в registry$(NC)"
-	@if [ -z "$(DOCKER_USERNAME)" ] || [ -z "$(DOCKER_PASSWORD)" ]; then \
-		echo "$(RED)❌ Переменные DOCKER_USERNAME и DOCKER_PASSWORD не установлены$(NC)"; \
-		exit 1; \
-	fi
+	@echo "Этап 6: Публикация ядра в registry"
+	@if "$(DOCKER_USERNAME)"=="" (
+		echo "Переменные DOCKER_USERNAME и DOCKER_PASSWORD не установлены"
+		exit /b 1
+	)
 	docker tag $(IMAGE_NAME):$(VERSION) $(FULL_IMAGE_NAME)
 	docker tag $(IMAGE_NAME):$(VERSION) $(LATEST_IMAGE_NAME)
 	docker push $(FULL_IMAGE_NAME)
 	docker push $(LATEST_IMAGE_NAME)
-	@echo "$(GREEN)✅ Образ опубликован: $(FULL_IMAGE_NAME)$(NC)"
+	@echo "Образ опубликован: $(FULL_IMAGE_NAME)"
 
 kernel_test: ## Тестирование ядра
-	@echo "$(YELLOW)🧪 Тестирование ядра$(NC)"
-	@if [ ! -f kernel/src/main.py ]; then \
-		echo "$(RED)❌ Основной файл ядра не найден$(NC)"; \
-		exit 1; \
-	fi
-	@echo "$(GREEN)✅ Тестирование завершено$(NC)"
+	@echo "Тестирование ядра"
+	@if not exist kernel\src\main.py (
+		echo "Основной файл ядра не найден"
+		exit /b 1
+	)
+	@echo "Тестирование завершено"
 
 kernel_clean: ## Очистка сборки
-	@echo "$(YELLOW)🧹 Очистка сборки$(NC)"
-	docker rmi $(IMAGE_NAME):$(VERSION) $(IMAGE_NAME):latest 2>/dev/null || true
+	@echo "Очистка сборки"
+	docker rmi $(IMAGE_NAME):$(VERSION) $(IMAGE_NAME):latest 2>nul || echo "Образы не найдены"
 	docker system prune -f
-	@echo "$(GREEN)✅ Очистка завершена$(NC)"
+	@echo "Очистка завершена"
 
 # Команды для полного цикла
 kernel: kernel_raw kernel_group kernel_cards search_isolate kernel_build ## Полная сборка ядра
-	@echo "$(GREEN)🎉 Ядро JALM Core Runner успешно собрано!$(NC)"
+	@echo "Ядро JALM Core Runner успешно собрано!"
 
 kernel_full: kernel kernel_test kernel_push ## Полный цикл: сборка + тест + публикация
-	@echo "$(GREEN)🎉 Полный цикл сборки ядра завершён!$(NC)"
+	@echo "Полный цикл сборки ядра завершён!"
 
 # Команды для разработки
 dev_setup: ## Настройка окружения разработки
-	@echo "$(YELLOW)🔧 Настройка окружения разработки$(NC)"
+	@echo "Настройка окружения разработки"
 	python -m venv venv
-	. venv/bin/activate && pip install -r requirements.txt
-	@echo "$(GREEN)✅ Окружение разработки готово$(NC)"
+	venv\Scripts\activate && pip install -r requirements.txt
+	@echo "Окружение разработки готово"
 
 dev_run: ## Запуск в режиме разработки
-	@echo "$(YELLOW)🚀 Запуск в режиме разработки$(NC)"
+	@echo "Запуск в режиме разработки"
 	uvicorn kernel.src.main:app --reload --host 0.0.0.0 --port 8888
 
 dev_test: ## Запуск тестов разработки
-	@echo "$(YELLOW)🧪 Запуск тестов разработки$(NC)"
+	@echo "Запуск тестов разработки"
 	python -m pytest tests/ -v
 
 # Команды для мониторинга
 logs: ## Просмотр логов
-	@echo "$(YELLOW)📋 Просмотр логов$(NC)"
+	@echo "Просмотр логов"
 	docker logs -f $(IMAGE_NAME):$(VERSION)
 
 status: ## Статус сервиса
-	@echo "$(YELLOW)📊 Статус сервиса$(NC)"
-	curl -s http://localhost:8888/health | jq .
+	@echo "Статус сервиса"
+	@curl -s http://localhost:8888/health 2>nul || echo "Сервис недоступен"
 
 # Команды для развёртывания
 deploy_local: kernel_build ## Развёртывание локально
-	@echo "$(YELLOW)🚀 Развёртывание локально$(NC)"
+	@echo "Развёртывание локально"
 	docker run -d --name jalm-core-runner -p 8888:8888 $(IMAGE_NAME):$(VERSION)
-	@echo "$(GREEN)✅ Сервис запущен на http://localhost:8888$(NC)"
+	@echo "Сервис запущен на http://localhost:8888"
 
 deploy_stop: ## Остановка локального развёртывания
-	@echo "$(YELLOW)🛑 Остановка локального развёртывания$(NC)"
-	docker stop jalm-core-runner || true
-	docker rm jalm-core-runner || true
-	@echo "$(GREEN)✅ Сервис остановлен$(NC)" 
+	@echo "Остановка локального развёртывания"
+	docker stop jalm-core-runner 2>nul || echo "Контейнер не найден"
+	docker rm jalm-core-runner 2>nul || echo "Контейнер не найден"
+	@echo "Сервис остановлен" 

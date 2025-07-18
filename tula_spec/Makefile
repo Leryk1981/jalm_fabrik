@@ -34,9 +34,9 @@ run-docker:
 
 clean:
 	@echo "Очистка..."
-	docker rmi $(IMAGE_NAME):$(IMAGE_TAG) 2>/dev/null || true
-	find . -type f -name "*.pyc" -delete
-	find . -type d -name "__pycache__" -delete
+	docker rmi $(IMAGE_NAME):$(IMAGE_TAG) 2>nul || echo "Образ не найден"
+	@for /r . %%f in (*.pyc) do @del "%%f" 2>nul
+	@for /d /r . %%d in (__pycache__) do @rmdir /s /q "%%d" 2>nul
 
 publish:
 	@echo "Публикация образа..."

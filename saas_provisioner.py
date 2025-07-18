@@ -699,7 +699,7 @@ status: ## Статус контейнеров
 
 health: ## Проверить здоровье продукта
 	@echo "Проверка здоровья {product_name}..."
-	@curl -s -o /dev/null -w "HTTP Status: %{{http_code}}\\n" http://localhost:8080/health || echo "Продукт недоступен"
+	@curl -s -o nul -w "HTTP Status: %%{{http_code}}\\n" http://localhost:8080/health 2>nul || echo "Продукт недоступен"
 
 test: ## Запустить тесты продукта
 	@echo "Тестирование {product_name}..."
@@ -725,11 +725,11 @@ clean: ## Очистить все (контейнеры, образы, тома)
 jalm-status: ## Статус JALM сервисов
 	@echo "Статус JALM сервисов:"
 	@echo "Core Runner (8000):"
-	@curl -s -o /dev/null -w "  HTTP Status: %{{http_code}}\\n" http://localhost:8000/health || echo "  ❌ Недоступен"
+	@curl -s -o nul -w "  HTTP Status: %%{{http_code}}\\n" http://localhost:8000/health 2>nul || echo "  Недоступен"
 	@echo "Tula Spec (8001):"
-	@curl -s -o /dev/null -w "  HTTP Status: %{{http_code}}\\n" http://localhost:8001/health || echo "  ❌ Недоступен"
+	@curl -s -o nul -w "  HTTP Status: %%{{http_code}}\\n" http://localhost:8001/health 2>nul || echo "  Недоступен"
 	@echo "Shablon Spec (8002):"
-	@curl -s -o /dev/null -w "  HTTP Status: %{{http_code}}\\n" http://localhost:8002/health || echo "  ❌ Недоступен"
+	@curl -s -o nul -w "  HTTP Status: %%{{http_code}}\\n" http://localhost:8002/health 2>nul || echo "  Недоступен"
 
 # Команды для разработки
 dev-setup: ## Настройка окружения разработки
@@ -811,11 +811,11 @@ restart: ## Перезапустить JALM сервисы
 status: ## Статус всех сервисов
 	@echo "Статус JALM Full Stack:"
 	@echo "1. JALM сервисы:"
-	@curl -s -o /dev/null -w "   Core Runner (8000): %{http_code}\\n" http://localhost:8000/health || echo "   Core Runner (8000): ❌ Недоступен"
-	@curl -s -o /dev/null -w "   Tula Spec (8001): %{http_code}\\n" http://localhost:8001/health || echo "   Tula Spec (8001): ❌ Недоступен"
-	@curl -s -o /dev/null -w "   Shablon Spec (8002): %{http_code}\\n" http://localhost:8002/health || echo "   Shablon Spec (8002): ❌ Недоступен"
+	@curl -s -o nul -w "   Core Runner (8000): %%{http_code}\\n" http://localhost:8000/health 2>nul || echo "   Core Runner (8000): Недоступен"
+	@curl -s -o nul -w "   Tula Spec (8001): %%{http_code}\\n" http://localhost:8001/health 2>nul || echo "   Tula Spec (8001): Недоступен"
+	@curl -s -o nul -w "   Shablon Spec (8002): %%{http_code}\\n" http://localhost:8002/health 2>nul || echo "   Shablon Spec (8002): Недоступен"
 	@echo "2. Клиентские продукты:"
-	@docker ps --format "table {{.Names}}\\t{{.Status}}\\t{{.Ports}}" | grep demo || echo "   Нет запущенных клиентских продуктов"
+	@docker ps --format "table {{.Names}}\\t{{.Status}}\\t{{.Ports}}" | findstr demo 2>nul || echo "   Нет запущенных клиентских продуктов"
 
 health: ## Проверить здоровье всех сервисов
 	@echo "Проверка здоровья JALM Full Stack..."
