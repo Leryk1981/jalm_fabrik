@@ -1,1 +1,77 @@
- 
+version: '3.8'
+
+services:
+  # Core Runner
+  core-runner:
+    build:
+      context: ../core-runner
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONPATH=/app
+    volumes:
+      - ../core-runner:/app
+    networks:
+      - jalm-network
+
+  # Research Layer
+  research:
+    build:
+      context: ../research
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - PYTHONPATH=/app
+    volumes:
+      - ../research:/app
+    networks:
+      - jalm-network
+
+  # Tula Spec
+  tula-spec:
+    build:
+      context: ../tula_spec
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      - PYTHONPATH=/app
+    volumes:
+      - ../tula_spec:/app
+    networks:
+      - jalm-network
+
+  # Shablon Spec
+  shablon-spec:
+    build:
+      context: ../shablon_spec
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8002"
+    environment:
+      - PYTHONPATH=/app
+    volumes:
+      - ../shablon_spec:/app
+    networks:
+      - jalm-network
+
+  # UI Market Place
+  ui-market:
+    build:
+      context: ../ui-market
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - core-runner
+      - research
+      - tula-spec
+      - shablon-spec
+    networks:
+      - jalm-network
+
+networks:
+  jalm-network:
+    driver: bridge 
