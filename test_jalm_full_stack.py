@@ -16,7 +16,7 @@ class JALMFullStackTester:
     
     def __init__(self):
         self.base_urls = {
-            "core_runner": "http://localhost:8000",
+            "core_runner": "http://localhost:8888",
             "tula_spec": "http://localhost:8001", 
             "shablon_spec": "http://localhost:8002"
         }
@@ -196,20 +196,29 @@ END
         
         try:
             response = requests.post(
-                f"{self.base_urls['core_runner']}/execute",
+                f"{self.base_urls['core_runner']}/exec",
                 json={
-                    "intent": test_intent,
-                    "params": {
-                        "test": True
-                    }
+                    "jalm_config": {
+                        "steps": [
+                            {
+                                "id": "test-step",
+                                "layer": "compute-script",
+                                "input": {
+                                    "script": "print('Hello from JALM Core Runner')",
+                                    "language": "py"
+                                }
+                            }
+                        ]
+                    },
+                    "timeout": 30
                 }
             )
             
             if response.status_code == 200:
                 result = response.json()
-                print(f"✅ Выполнение интента: {result['status']}")
+                print(f"✅ Выполнение JALM: {result.get('execution_id', 'unknown')}")
                 execution_results["intent_execution"] = True
-                execution_results["execution_time"] = result.get("execution_time", 0)
+                execution_results["execution_id"] = result.get("execution_id", "")
             else:
                 print(f"❌ Ошибка выполнения интента: {response.status_code}")
                 execution_results["intent_execution"] = False

@@ -46,7 +46,6 @@ class FunctionMetadata(BaseModel):
     runtime: Dict[str, Any]
 
 class FunctionExecutionRequest(BaseModel):
-    function_id: str
     version: Optional[str] = None
     hash: Optional[str] = None
     params: Dict[str, Any] = Field(default_factory=dict)

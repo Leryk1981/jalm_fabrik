@@ -1,0 +1,30 @@
+{
+  "health_checks": {
+    "core_runner": true,
+    "tula_spec": true,
+    "shablon_spec": true
+  },
+  "tula_spec_functions": {
+    "list_functions": true,
+    "slot_validator_execution": true,
+    "booking_widget_execution": true,
+    "notify_system_execution": true
+  },
+  "shablon_spec_templates": {
+    "list_templates": true,
+    "categories": true,
+    "booking-flow_validation": true,
+    "ecommerce-order_validation": true,
+    "notification-campaign_validation": true
+  },
+  "core_runner_execution": {
+    "intent_execution": true,
+    "execution_id": "9b7a9419-125b-4d2b-806e-32d6071ba53d"
+  },
+  "integration": {
+    "booking-flow_dependencies": true,
+    "ecommerce-order_dependencies": true,
+    "notification-campaign_dependencies": true,
+    "function_template_integration": true
+  }
+}
