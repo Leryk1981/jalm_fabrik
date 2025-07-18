@@ -33,6 +33,7 @@ class TemplateMetadata(BaseModel):
     id: str
     version: str
     hash: str
+    name: str
     description: str
     category: str
     tags: List[str]
@@ -42,6 +43,11 @@ class TemplateMetadata(BaseModel):
     input_schema: Dict[str, Any]
     output_schema: Dict[str, Any]
     runtime: Dict[str, Any]
+    components: List[Dict[str, Any]]
+    config_schema: Dict[str, Any]
+    files: List[str]
+    created_at: str
+    updated_at: str
 
 class TemplateExecutionRequest(BaseModel):
     template_id: str

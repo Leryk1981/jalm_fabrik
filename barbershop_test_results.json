@@ -1,31 +1,78 @@
 {
   "jalm_services_health": {
-    "core_runner_health": false,
-    "tula_spec_health": false,
-    "shablon_spec_health": false
+    "core_runner_health": true,
+    "tula_spec_health": true,
+    "shablon_spec_health": true
   },
   "tula_spec_functions": {
-    "load_success": false
+    "load_success": true,
+    "function_slot_validator": true,
+    "function_booking_widget": true,
+    "function_notify_system": true,
+    "metadata_slot_validator": true,
+    "metadata_booking_widget": true,
+    "metadata_notify_system": true
   },
   "shablon_spec_templates": {
-    "load_success": false
+    "load_success": true,
+    "barbershop_template": true,
+    "template_field_name": true,
+    "template_field_description": true,
+    "template_field_config_schema": true,
+    "template_field_files": true
   },
   "product_creation": {
     "intent_dsl_created": true,
-    "product_created": false,
-    "error": "Traceback (most recent call last):\n  File \"D:\\Projects_Clean\\Saas\\saas_provisioner.py\", line 1759, in <module>\n    url = provisioner.provision(\"./config.jalm\")\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\Projects_Clean\\Saas\\saas_provisioner.py\", line 1569, in provision\n    print(f\"\\u2705 Provision.yaml сгенерирован:\")\n  File \"D:\\python\\Lib\\encodings\\cp1251.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\u2705' in position 0: character maps to <undefined>\n"
+    "product_created": true
   },
   "product_structure": {
-    "product_exists": false
+    "product_exists": true,
+    "file_Dockerfile": true,
+    "file_docker-compose.yml": true,
+    "file_package.json": true,
+    "file_package-lock.json": true,
+    "file_README.md": true,
+    "file_app.py": false,
+    "dir_config": true,
+    "dir_dist": true,
+    "dir_FILES": true,
+    "dir_app": true,
+    "file_provision_yaml": true
   },
   "provision_yaml": {
-    "file_exists": false
+    "file_exists": true,
+    "section_app_id": true,
+    "section_env": true,
+    "section_dependencies": true,
+    "section_meta": true,
+    "app_id": "jalm_app_v1",
+    "environment": "prod infra/docker/compose",
+    "dependencies": [
+      "datastore",
+      "api_layer",
+      "tula_spec",
+      "shablon_spec"
+    ]
   },
   "docker_configuration": {
-    "dockerfile_exists": false,
-    "compose_exists": false
+    "dockerfile_exists": true,
+    "dockerfile_from_node": true,
+    "dockerfile_copy_package.json": true,
+    "dockerfile_run_npm": true,
+    "dockerfile_copy_dist": true,
+    "dockerfile_expose": true,
+    "dockerfile_cmd": true,
+    "compose_exists": true,
+    "compose_version": true,
+    "compose_services": true,
+    "compose_ivan": true,
+    "compose_ports": true,
+    "compose_networks": true
   },
   "product_api": {
-    "main_py_exists": false
+    "app_py_exists": false,
+    "index_js_exists": true,
+    "package_json_exists": true,
+    "start_script": true
   }
 }

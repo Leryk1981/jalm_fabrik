@@ -1,0 +1,5 @@
+{
+  "intent_content": "BEGIN test\n  RUN test := 'Hello World'\nEND",
+  "params": {},
+  "timeout": 30
+} 
