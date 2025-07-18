@@ -39,43 +39,43 @@ install: setup ## Установить модуль (alias для setup)
 
 test: ## Запустить тесты
 	@echo "Запускаем тесты..."
-	cd $(RESEARCH_DIR) && $(PYTEST) $(TESTS_DIR)/ -v --tb=short
+	$(PYTEST) tests/ -v --tb=short
 	@echo "Тесты завершены"
 
 run: ## Запустить полный процесс сбора и анализа данных
 	@echo "Запускаем Research Layer..."
-	cd $(RESEARCH_DIR) && $(PYTHON) main.py --log-level INFO
+	cd .. && $(PYTHON) -m research.main --log-level INFO
 	@echo "Research Layer завершен"
 
 run-debug: ## Запустить с отладочным логированием
 	@echo "Запускаем Research Layer в режиме отладки..."
-	cd $(RESEARCH_DIR) && $(PYTHON) main.py --log-level DEBUG
+	cd .. && $(PYTHON) -m research.main --log-level DEBUG
 	@echo "Research Layer завершен"
 
 collect: ## Только сбор данных без анализа
 	@echo "Собираем данные..."
-	cd $(RESEARCH_DIR) && $(PYTHON) main.py --collect-only --log-level INFO
+	cd .. && $(PYTHON) -m research.main --collect-only --log-level INFO
 	@echo "Сбор данных завершен"
 
 analyze: ## Только анализ существующих данных
 	@echo "Анализируем данные..."
-	@if exist "$(PATTERNS_DIR)/raw_patterns.csv" ( \
-		cd $(RESEARCH_DIR) && $(PYTHON) main.py --analyze-only patterns/raw_patterns.csv --log-level INFO \
+	@if exist "patterns/raw_patterns.csv" ( \
+		cd .. && $(PYTHON) -m research.main --analyze-only research/patterns/raw_patterns.csv --log-level INFO \
 	) else ( \
 		echo "Файл patterns/raw_patterns.csv не найден. Сначала запустите 'make collect'" \
 	)
 
 analyze-json: ## Анализ данных из JSON файла
 	@echo "Анализируем данные из JSON..."
-	@if exist "$(PATTERNS_DIR)/raw_patterns.json" ( \
-		cd $(RESEARCH_DIR) && $(PYTHON) main.py --analyze-only patterns/raw_patterns.json --log-level INFO \
+	@if exist "patterns/raw_patterns.json" ( \
+		$(PYTHON) main.py --analyze-only patterns/raw_patterns.json --log-level INFO \
 	) else ( \
 		echo "Файл patterns/raw_patterns.json не найден" \
 	)
 
 quick-test: ## Быстрый тест функциональности
 	@echo "Быстрый тест Research Layer..."
-	$(PYTHON) -c "import sys; sys.path.append('..'); from research import DataCollector, PatternAnalyzer, ResearchConfig; print('✅ Research Layer работает корректно')"
+	$(PYTHON) -c "import sys; sys.path.append('..'); from research import DataCollector, PatternAnalyzer, ResearchConfig; print('Research Layer works correctly')"
 	@echo "Быстрый тест пройден"
 
 clean: ## Очистить временные файлы и данные
@@ -100,21 +100,21 @@ status: ## Показать статус модуля
 	@echo "  Тесты: $(TESTS_DIR)"
 	@echo ""
 	@echo "Файлы данных:"
-	@dir $(PATTERNS_DIR) 2>nul || echo "  Директория пуста"
+	@cd .. && dir research\patterns 2>nul || echo "  Директория пуста"
 	@echo ""
 	@echo "Зависимости:"
-	@$(PYTHON) -c "import requests, yaml, pandas; print('  ✅ Все зависимости установлены')" 2>nul || echo "  ❌ Отсутствуют зависимости"
+	@$(PYTHON) -c "import requests, yaml, pandas; print('  All dependencies installed')" 2>nul || echo "  Missing dependencies"
 
 validate: ## Проверить корректность модуля
 	@echo "Проверяем корректность модуля..."
-	$(PYTHON) -c "import sys; sys.path.append('..'); from research import ResearchConfig; config = ResearchConfig(); print('✅ Конфигурация корректна')"
-	$(PYTHON) -c "import sys; sys.path.append('..'); from research import DataCollector; collector = DataCollector(); print('✅ DataCollector инициализируется')"
-	$(PYTHON) -c "import sys; sys.path.append('..'); from research import PatternAnalyzer; analyzer = PatternAnalyzer(); print('✅ PatternAnalyzer инициализируется')"
+	$(PYTHON) -c "import sys; sys.path.append('..'); from research import ResearchConfig; config = ResearchConfig(); print('Configuration is correct')"
+	$(PYTHON) -c "import sys; sys.path.append('..'); from research import DataCollector; collector = DataCollector(); print('DataCollector initializes correctly')"
+	$(PYTHON) -c "import sys; sys.path.append('..'); from research import PatternAnalyzer; analyzer = PatternAnalyzer(); print('PatternAnalyzer initializes correctly')"
 	@echo "Модуль корректен"
 
 demo: ## Демонстрация работы модуля
 	@echo "Демонстрация Research Layer..."
-	$(PYTHON) -c "import sys; sys.path.append('..'); from research import DataCollector, PatternAnalyzer, ResearchConfig; print('✅ Research Layer Demo - модуль работает')"
+	$(PYTHON) -c "import sys; sys.path.append('..'); from research import DataCollector, PatternAnalyzer, ResearchConfig; print('Research Layer Demo - module works')"
 
 # Команды для разработки
 dev-setup: setup ## Настройка для разработки
@@ -125,13 +125,13 @@ dev-setup: setup ## Настройка для разработки
 # Команды для продакшена
 prod-run: ## Запуск в продакшн режиме
 	@echo "Запуск в продакшн режиме..."
-	cd $(RESEARCH_DIR) && $(PYTHON) main.py --log-level WARNING --output-format json
+	$(PYTHON) main.py --log-level WARNING --output-format json
 	@echo "Продакшн запуск завершен"
 
 prod-analyze: ## Анализ в продакшн режиме
 	@echo "Анализ в продакшн режиме..."
-	@if exist "$(PATTERNS_DIR)/raw_patterns.json" ( \
-		cd $(RESEARCH_DIR) && $(PYTHON) main.py --analyze-only patterns/raw_patterns.json --log-level WARNING \
+	@if exist "patterns/raw_patterns.json" ( \
+		$(PYTHON) main.py --analyze-only patterns/raw_patterns.json --log-level WARNING \
 	) else ( \
 		echo "Файл данных не найден" \
 	)

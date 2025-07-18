@@ -4,11 +4,12 @@
 """
 
 import argparse
+import json
 import logging
 import sys
 from pathlib import Path
 
-from research import DataCollector, PatternAnalyzer, ResearchConfig
+from . import DataCollector, PatternAnalyzer, ResearchConfig
 
 
 def setup_logging(level: str = "INFO"):
