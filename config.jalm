@@ -1,0 +1,29 @@
+---
+intent: "create_calendar_instance"
+meta:
+  author: "test_user"
+  retry_on_fail: 1
+  stream: false
+  schedule: "@once"
+  expected_outputs:
+    slot: "datetime"
+    confirmed: "boolean"
+  tls_verify: true
+context:
+  user_name: "Иван"
+  lang: "ru"
+  calendars: 3
+  domain: "ivan.mycalendar.app"
+session_state:
+  setup_done: false
+  last_used: "2025-07-15"
+steps:
+  - call_tool: "create_calendar"
+    args:
+      user: "{{context.user_name}}"
+      lang: "{{context.lang}}"
+    set:
+      calendar_id: "{{response.json.id}}"
+output:
+  type: "text"
+  value: "Сервис для {{context.user_name}} создан: {{context.domain}}" 

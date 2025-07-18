@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SaaS Constructor</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="text"], textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        textarea { height: 200px; font-family: monospace; }
+        button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .error { color: red; margin-top: 10px; }
+        .success { color: green; margin-top: 10px; }
+        .url { color: blue; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SaaS Constructor</h1>
+        
+        <!-- Форма для генерации JALM через LLM -->
+        <form method="POST" action="/generate">
+            <div class="form-group">
+                <label for="user_query">Опишите ваш SaaS:</label>
+                <input type="text" id="user_query" name="user_query" placeholder="Например: календарь для записи к парикмахеру" required>
+            </div>
+            <button type="submit">Сгенерировать JALM</button>
+        </form>
+
+        <!-- Форма для деплоя -->
+        {% if jalm %}
+        <form method="POST" action="/deploy">
+            <div class="form-group">
+                <label for="jalm_text">JALM конфигурация:</label>
+                <textarea id="jalm_text" name="jalm_text" required>{{ jalm }}</textarea>
+            </div>
+            <button type="submit">Развернуть SaaS</button>
+        </form>
+        {% endif %}
+
+        {% if error %}
+        <div class="error">
+            <strong>Ошибка:</strong> {{ error }}
+        </div>
+        {% endif %}
+
+        {% if url %}
+        <div class="success">
+            <strong>SaaS успешно развернут!</strong>
+        </div>
+        <div class="url">
+            <strong>URL:</strong> <a href="{{ url }}" target="_blank">{{ url }}</a>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html> 

@@ -1,0 +1,10 @@
+{
+  "agent_name": "test_agent",
+  "intent_name": "check_availability",
+  "method": "POST",
+  "url": "https://api.example.com/check",
+  "params": [
+    "user_id",
+    "date"
+  ]
+}

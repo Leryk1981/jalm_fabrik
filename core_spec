@@ -1,0 +1,81 @@
+ СКАФФОЛД CORE
+```
+/core-runner/
+├── kernel/               # исполнительные модули
+├── cfg/                  # конфигурация рантайма
+├── scheduler/            # cron / event loop
+├── registry-proxy/       # pull tula на лету
+├── api/                  # OpenAPI сервер ядра
+├── state-store/          # inmem kv + postgresql
+└── dist/
+```
+
+
+------------------------------------------------
+Этап 1. вычленение атомов исполнения  
+in-file: `kernel/raw_atomics.csv`  
+shape: `name|lang|side_effect|io_type|freq|blocker`  
+пример: `exec_http|js|none|in_call|event|-`
+
+
+------------------------------------------------
+Этап 2. группировка атомов в «слои»  
+out-file: `kernel/layers.json`  
+6 слоёв: io-http, io-db, io-file, compute-script, render-html, notify-mq.
+
+
+------------------------------------------------
+Этап 3. детализированные шаги-ранг pull  
+cards: `kernel/step_cards/atomic_http.yml`  
+```
+id: exec_step
+layer: io-http
+input: {method,url,body}
+output: {status,body,headers}
+lang: js|py|go
+default_fn: fetch_wrapper
+```
+
+
+------------------------------------------------
+Этап 4. поиск готовых движков  
+query batch:  
+`fastapi executor micro vm sandbox docker`  
+`python micro isolate subprocess`  
+scripts: `scripts/search_micro_isolates.py → candidates/isolates.json`
+
+
+------------------------------------------------
+Этап 5. собрать «ядро» как готовую пачку  
+tools:  
+- `kernel/src/` – fastify-based контейнер, worker-pool (qbdi)  
+- `kernel/Dockerfile` – многостадийная сборка для musl-runtime  
+- `kernel/Makefile` – `make kernel` собирает образ `jalm/core-runner:VERSION`
+
+
+------------------------------------------------
+Этап 6. публикация ядра в registry  
+artifact: `catalog/core-runner.engine.json`  
+payload:
+```
+{
+  "engine_id":"core-runner",
+  "image":"jalm/core-runner:latest",
+  "layers":["io-http","io-db","compute-py","compute-js"],
+  "api_version":1,
+  "entrypoint":"/usr/bin/runner",
+  "pull_url":"ghcr.io/jalm/core-runner:{tag}"
+}
+```
+
+
+------------------------------------------------
+RUN-однострочник
+```
+$ make kernel_raw      # 1
+$ make kernel_group    # 2
+$ make kernel_cards    # 3
+$ make search_isolate  # 4
+$ make kernel_build    # 5
+$ make kernel_push     # 6
+```  Да, мы практически собрали полную картину, но действительно — не хватает сводного **"корневого B.O.M." (Bill of Materials)** — единого документа, который показывает, какие компоненты существуют ­после 6-х этапов и как они склеиваются в единый JALM одним `docker-compose up`.

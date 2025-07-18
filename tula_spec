@@ -1,0 +1,173 @@
+1. Что такое «каталог тулапи»  
+
+
+• **Tula — минимальный модуль**, который  
+  – открывает одну конкретную функцию (календарь Google, SMS via SMSRU, crm-bitrix24, карта google-map)  
+  – имеет единый интерфейс: docker-image:tag или .zip с manifest.yaml  
+  – отдаёт cnamed-запись вида `https://tulpa.jalm.io/{namespace}/{name}/{version}`  
+
+
+• **Registry** — API + UI который хранит мету, версии, сигнатуры, чексуммы и слои.  
+
+
+------------------------------------------------
+2. Та, что уже есть – забираем, но обёртываем
+
+
+| Инструмент       | Что делаем                                                                 |
+|------------------|------------------------------------------------------------------------------|
+| Google Calendar  | Cоздаём тулу `gcal/1.2.3`, docker `jalm/gcal-actions`                        |
+| SMSRU            | Тула `smsru/1.0.0` через HTTP POST, обёрнут Woofce.                          |
+| Firebase Auth    | Нативная: `firebase/auth/2.1.0`, уже готова, только добавить в registry.     |
+| Telegram SDK     | Ошибка у JALM — wrapper `telegram/bot/21.95` (ffi к tdlib).                 |
+| Yandex Dialogs   | Создаём пустой shell в `/registry/yandex/v3/`.                               |
+
+
+Общий приём: если **есть официальный SDK** → пишем Tula-adapter с ENV-гейтами.  
+Если **нет SDK** → пишем REST-minuet.
+
+
+------------------------------------------------
+3. Структура registry (физически)
+
+
+```
+/registry/
+├── namespaces/             # логическая группа (payment, calendar, sms, geo…)
+│   ├── calendar/
+│   │   └── google/
+│   │       ├──1.2.3/      # image + manifests
+│   │       └── 1.2.4/
+│   └── sms/
+│       ├── smsru/ 1.0.0/
+│       └── telegram/ 1.3.1/
+├── API/
+│   └── registry.json      # autocomplete JALM
+├── UI/
+│   └── browser.html       # та же SO-like страница
+```
+
+
+Каждый слой — **docker-image с 50 MB берег** и единым поисковый порт `12705`.  
+Registry API (Go) не тяжёлый: маршруты /tulpa/download, /tulpa/metadata, /tulpa/search.
+
+
+------------------------------------------------
+4. Жизненный цикл Tula при сборке шаблона
+
+
+1. При импорте шаблона JALM спрашивает registry по ключу `requires.calendar = google/1.2.3`.  
+2. Registry качает image, разворачивает как sidecar.  
+3. Контейнер автоматически получает переменные (`{{GOOGLE_API_KEY}}`, `{{BOT_TOKEN}}`).  
+
+
+Оператор **не прокладывает ip-адреса** – всё определяется DNS-Alias.
+
+
+------------------------------------------------
+5. План за 10 дней (Количество человек 3)
+
+
+День 1-2    – проектная структура registry, таблица TMF.  
+День 3-4    – враппер для GCal, SMSRU, Bitrix24.  
+День 5      – CI/CD пуширующий образы (GitHub Actions build-n-push).  
+День 6      – UI: список, поиск, фильтр, badge «tested».  
+День 7      – валидация через е2e тесты (jest + puppeteer).  
+День 8      – логи, трейсинг, сканер vulns (trivy).  
+День 9      – наполняем 10 релевантных tula.  
+День 10     – публичная стаб, done.
+
+
+------------------------------------------------
+6. Репо/URL для первого релиза
+
+
+registry.jalm.io (Docker-registry v2)  
+tulps.jalm.dev  (UI-поиск)  
+---
+
+
+Итог: пока не запустится registry — любой новый шаблон барбершопа будет требовать **full manual wrap**.  
+Как только запущен каталог — мы меняем одну строку `requires.calendar: google/1.2.3 → 1.2.5` и нажимаем `update`, не трогая код.  Полный стек из 6 этапов («с чистого листа» до готового исполняемого API-докера)
+
+
+------------------------------------------------
+0. СКАФФОЛД ПРОЕКТА
+```
+/jalm-tula-stack/
+├── research/            # raw csv + grouped json
+├── docs/                # step_cards yaml + edgesteps.json
+├── tool_catalog/        # итоговые .api.json
+├── registry-wizard/     # упаковщик
+├── dist/
+└── docker-compose.yml
+```
+
+
+------------------------------------------------
+Этап 1. сбор необработанных действий  
+filename: `research/raw_actions.csv`  
+fields: `action_id` | `actor` | `source` | `freq` | `blocker`  
+лайф-сценарий: `python generate_raw.py` читает интервью и пишет csv
+
+
+------------------------------------------------
+Этап 2. кластеризация в группы  
+filename: `research/grouped.json`  
+алгоритм: `group_actions.py` (sklearn k-means → 8 кластеров).
+
+
+------------------------------------------------
+Этап 3. конкретные шаги  
+filename: `docs/step_cards/XXX-step.yaml`  
+структура:  
+```
+id:     schedule_booking
+actor:  client
+input:  {date, service_id}
+output: {slot_uuid}
+std:    0.92
+```
+
+
+------------------------------------------------
+Этап 4. поиск готовых реализаций (Context7)  
+скрипт: `scripts/collect_context7.py`  
+читает step_cards → отправляет batch → получает gist/ license.  
+записывает в `tool_candidates/step_realization.json`
+
+
+------------------------------------------------
+Этап 5. обёртка в Tula (автоматическая)  
+скрипт: `registry-wizard/wrap_tula.py`  
+принимает: `folder_with_code`, metadata  
+делает: cookiecutter → `Dockerfile`, `manifest.yaml`, .http  
+либо: `go pack tula --name schedule_booking --cat booking`
+
+
+------------------------------------------------
+Этап 6. публикация в универсальный catalog  
+file: `tool_catalog/$name.api.json`  
+структура окончательного индекса:  
+```
+{
+ "id":"schedule_booking",
+ "category":"booking",
+ "endpoint":"https://tula.run.jalm.io/schedule_booking/v1",
+ "requires": ["POSTGRES_URL"],
+ "triggers": ["client.appointment_date"],
+ "sequel": ["slot_hold","payment_intent"]
+}
+```
+
+
+------------------------------------------------
+RUN-Команды одной строчкой
+```
+$ make research          # этапы 1-2
+$ make search            # 3-4
+$ make wrap NAME=booking # 5
+$ make push              # 6 → tool_catalog/ + registry
+```
+`docker-compose up registry` поднимает catalog и API-post-repository вместе.  Полный «6-этап-стек» специально для **шаблонов JALM**, а не для Tula.  
+Формат и язык тот же – от «чистого листа» до публикации готового шаблона в реестр

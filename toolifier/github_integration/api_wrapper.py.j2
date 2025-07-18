@@ -1,0 +1,25 @@
+from fastapi import APIRouter
+from pydantic import BaseModel
+from typing import Any
+
+router = APIRouter()
+
+class InputModel(BaseModel):
+{% for param, type in parameters.items() %}
+    {{ param }}: {{ type }}
+{% endfor %}
+
+@router.post("/{{ function_name }}", response_model={{ returns }}, summary="{{ description }}")
+def {{ function_name }}_endpoint(input: InputModel) -> Any:
+    """
+    {{ description }}
+    Пример запроса:
+    {
+{% for param, type in parameters.items() %}        "{{ param }}": {{ '1' if type == 'int' else '1.23' if type == 'float' else 'true' if type == 'bool' else '"string"' }}{% if not loop.last %},{% endif %}
+{% endfor %}    }
+    """
+    # Исходный код функции
+    {{ source_code | indent(4) }}
+    # Вызов функции с параметрами
+    result = {{ function_name }}(**input.dict())
+    return result 
