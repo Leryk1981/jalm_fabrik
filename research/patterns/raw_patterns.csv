@@ -1,0 +1,5 @@
+app_type,collected_at,components,config_structure,env_vars,frequency,pattern_name
+spa,2025-07-18T19:37:52.980592,"[""frontend"", ""api"", ""database""]","{""frontend"": {""build"": ""dist""}, ""api"": {""port"": 8080}}","[""REACT_APP_API_URL"", ""REACT_APP_ENV""]",3,spa_basic_spa
+ssr,2025-07-18T19:37:52.980592,"[""frontend"", ""api"", ""database"", ""cache""]","{""frontend"": {""build"": ""dist""}, ""api"": {""port"": 8080}, ""cache"": {""ttl"": 300}}","[""NEXT_PUBLIC_API_URL"", ""DATABASE_URL"", ""REDIS_URL""]",12,ssr_basic_ssr
+api,2025-07-18T19:37:52.980592,"[""api"", ""database"", ""auth""]","{""api"": {""port"": 8080}, ""database"": {""pool_size"": 10}}","[""DATABASE_URL"", ""SECRET_KEY"", ""CORS_ORIGINS""]",2,api_basic_api
+microservice,2025-07-18T19:37:52.980592,"[""service"", ""database"", ""message_queue""]","{""service"": {""port"": 8080}, ""health"": {""endpoint"": ""/healthz""}}","[""SERVICE_PORT"", ""DB_URL"", ""MQ_URL""]",2,microservice_basic_microservice

@@ -6,16 +6,8 @@
     "version": "1.0.0",
     "created_at": "2024-07-18T19:22:00.000Z",
     "endpoint": "/api/frontend",
-    "methods": [
-      "GET",
-      "POST"
-    ],
-    "dependencies": [
-      "react",
-      "axios"
-    ],
-    "source": "research_layer",
-    "integrated_at": "2025-07-18T19:26:31.357985"
+    "methods": ["GET", "POST"],
+    "dependencies": ["react", "axios"]
   },
   {
     "name": "api_handler_research",
@@ -24,18 +16,8 @@
     "version": "1.0.0",
     "created_at": "2024-07-18T19:22:00.000Z",
     "endpoint": "/api/v1",
-    "methods": [
-      "GET",
-      "POST",
-      "PUT",
-      "DELETE"
-    ],
-    "dependencies": [
-      "fastapi",
-      "uvicorn"
-    ],
-    "source": "research_layer",
-    "integrated_at": "2025-07-18T19:26:31.357985"
+    "methods": ["GET", "POST", "PUT", "DELETE"],
+    "dependencies": ["fastapi", "uvicorn"]
   },
   {
     "name": "database_handler_research",
@@ -44,15 +26,7 @@
     "version": "1.0.0",
     "created_at": "2024-07-18T19:22:00.000Z",
     "endpoint": "/api/db",
-    "methods": [
-      "GET",
-      "POST"
-    ],
-    "dependencies": [
-      "sqlalchemy",
-      "psycopg2"
-    ],
-    "source": "research_layer",
-    "integrated_at": "2025-07-18T19:26:31.357985"
+    "methods": ["GET", "POST"],
+    "dependencies": ["sqlalchemy", "psycopg2"]
   }
-]
+] 

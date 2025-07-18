@@ -1,0 +1,93 @@
+{
+  "summary": {
+    "total_patterns": 2,
+    "app_types": {
+      "spa": 1,
+      "ssr": 1
+    },
+    "average_frequency": 38.5,
+    "common_components": [
+      ["frontend", 2],
+      ["api", 1],
+      ["database", 1]
+    ],
+    "common_env_vars": [
+      ["DB_URL", 1],
+      ["API_KEY", 1],
+      ["STRIPE_KEY", 1]
+    ],
+    "analysis_date": "2024-07-18T19:22:00.000Z"
+  },
+  "categories": {
+    "simple": [],
+    "medium": [
+      {
+        "name": "booking_light_research",
+        "components": ["frontend", "api", "database"],
+        "env_vars": ["DB_URL", "API_KEY"],
+        "frequency": 45,
+        "app_type": "spa"
+      }
+    ],
+    "complex": [
+      {
+        "name": "ecommerce_basic_research",
+        "components": ["frontend", "backend", "payment"],
+        "env_vars": ["STRIPE_KEY", "DB_HOST"],
+        "frequency": 32,
+        "app_type": "ssr"
+      }
+    ]
+  },
+  "recommendations": [
+    {
+      "type": "popular_pattern",
+      "pattern_name": "booking_light_research",
+      "frequency": 45,
+      "recommendation": "Добавить в каталог шаблонов: booking_light_research",
+      "priority": "high"
+    },
+    {
+      "type": "common_env_var",
+      "env_var": "DB_URL",
+      "frequency": 1,
+      "recommendation": "Добавить DB_URL в стандартные переменные окружения",
+      "priority": "medium"
+    }
+  ],
+  "jalm_integration": {
+    "templates": [
+      {
+        "name": "booking_light_research",
+        "type": "spa",
+        "components": ["frontend", "api", "database"],
+        "description": "Автоматически созданный шаблон для booking_light_research",
+        "version": "1.0.0",
+        "created_at": "2024-07-18T19:22:00.000Z",
+        "frequency": 45
+      }
+    ],
+    "functions": [
+      {
+        "name": "frontend_handler_research",
+        "type": "frontend",
+        "description": "Обработчик для компонента frontend",
+        "version": "1.0.0",
+        "created_at": "2024-07-18T19:22:00.000Z"
+      }
+    ],
+    "config_templates": [
+      {
+        "name": "booking_light_research_config",
+        "structure": {
+          "frontend": {"build": "dist"},
+          "api": {"port": 8080}
+        },
+        "env_vars": ["DB_URL", "API_KEY"],
+        "created_at": "2024-07-18T19:22:00.000Z"
+      }
+    ],
+    "env_templates": []
+  },
+  "analyzed_at": "2024-07-18T19:22:00.000Z"
+} 

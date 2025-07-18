@@ -1,0 +1,20 @@
+{
+  "catalog_info": {
+    "name": "JALM Tool Catalog",
+    "version": "1.0.0",
+    "description": "Каталог инструментов и шаблонов JALM",
+    "last_updated": "2025-07-18T19:38:16.634541",
+    "source": "research_layer"
+  },
+  "files": {
+    "templates": "templates.json",
+    "functions": "functions.json",
+    "analysis": "analysis.json",
+    "groups": "groups.json"
+  },
+  "statistics": {
+    "total_templates": 2,
+    "total_functions": 3,
+    "total_groups": 0
+  }
+}

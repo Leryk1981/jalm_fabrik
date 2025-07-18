@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  research-scheduler:
+    build: .
+    container_name: jalm-research-scheduler
+    volumes:
+      - ./data:/app/data
+      - ./patterns:/app/patterns
+      - ./results:/app/results
+      - ../tool_catalog:/app/tool_catalog
+      - ../shablon_spec/registry:/app/shablon_registry
+      - ../tula_spec/registry:/app/tula_registry
+    environment:
+      - RESEARCH_MODE=scheduler
+      - SCHEDULE_INTERVAL=3600  # 1 час
+      - AUTO_INTEGRATE=true
+    command: ["python", "-c", "from scheduler import ResearchScheduler; ResearchScheduler().start()"]
+    restart: unless-stopped
+
+  research-worker:
+    build: .
+    container_name: jalm-research-worker
+    volumes:
+      - ./data:/app/data
+      - ./patterns:/app/patterns
+      - ./results:/app/results
+    environment:
+      - RESEARCH_MODE=worker
+    command: ["python", "-c", "from main import run_research_pipeline; run_research_pipeline()"]
+    restart: unless-stopped
+
+  research-api:
+    build: .
+    container_name: jalm-research-api
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/app/data
+      - ./patterns:/app/patterns
+      - ./results:/app/results
+    environment:
+      - RESEARCH_MODE=api
+      - API_PORT=8080
+    command: ["python", "-c", "from api import ResearchAPI; ResearchAPI().start()"]
+    restart: unless-stopped 

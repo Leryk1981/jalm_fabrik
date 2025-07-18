@@ -1,7 +1,7 @@
 # JALM Full Stack - Корневой Makefile
 # Управление всей системой JALM Full Stack
 
-.PHONY: help start stop restart status health test clean demo build-all
+.PHONY: help start stop restart status health test clean demo build-all research-collect research-analyze research-integrate research-status
 
 # Переменные
 JALM_SERVICES_SCRIPT = start_jalm_services.py
@@ -21,6 +21,12 @@ help: ## Показать справку по командам
 	@echo "  clean      - Очистить все"
 	@echo "  demo       - Запустить демонстрацию барбершопа"
 	@echo "  build-all  - Собрать все компоненты"
+	@echo ""
+	@echo "Research Layer команды:"
+	@echo "  research-collect   - Сбор данных через Research Layer"
+	@echo "  research-analyze   - Анализ паттернов"
+	@echo "  research-integrate - Интеграция с JALM компонентами"
+	@echo "  research-status    - Статус Research Layer"
 
 start: ## Запустить JALM сервисы
 	@echo "Запуск JALM Full Stack сервисов..."
@@ -112,6 +118,26 @@ dev-test: ## Запуск тестов в режиме разработки
 	@echo "Запуск тестов в режиме разработки..."
 	@python -m pytest tests/ -v
 
+# Research Layer команды
+research-collect: ## Сбор данных через Research Layer
+	@echo "Сбор данных через Research Layer..."
+	@cd research && make collect
+	@echo "✅ Сбор данных завершен"
+
+research-analyze: ## Анализ паттернов через Research Layer
+	@echo "Анализ паттернов через Research Layer..."
+	@cd research && make analyze
+	@echo "✅ Анализ паттернов завершен"
+
+research-integrate: ## Интеграция с JALM компонентами
+	@echo "Интеграция Research Layer с JALM компонентами..."
+	@cd research && make artifacts
+	@echo "✅ Интеграция завершена"
+
+research-status: ## Статус Research Layer
+	@echo "Статус Research Layer:"
+	@cd research && make status
+
 # Информация о системе
 info: ## Информация о JALM Full Stack
 	@echo "JALM Full Stack - Информация о системе:"
@@ -119,6 +145,7 @@ info: ## Информация о JALM Full Stack
 	@echo "  Core Runner: Порт 8000"
 	@echo "  Tula Spec: Порт 8001"
 	@echo "  Shablon Spec: Порт 8002"
+	@echo "  Research Layer: Порт 8003"
 	@echo "  Клиентские продукты: Порт 8080+"
 	@echo "  Размер клиентского продукта: ~50MB"
 	@echo "  Общий размер системы: Минимальный"

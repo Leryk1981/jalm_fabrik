@@ -14,6 +14,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from cli.core.config import Config
 from cli.utils.logger import setup_logger
 from cli.commands import up, down, status, logs, test, deploy
+from cli.commands import research
 
 def create_parser():
     """Создает парсер аргументов командной строки"""
@@ -78,6 +79,9 @@ def create_parser():
     deploy_parser.add_argument('--name', '-n', help='Имя деплоя')
     deploy_parser.add_argument('--config', '-c', help='Путь к конфигурации')
     
+    # Добавляем команды research
+    research.add_research_parser(subparsers)
+    
     # Глобальные опции
     parser.add_argument('--version', action='version', version='%(prog)s 1.0.0')
     parser.add_argument('--debug', action='store_true', help='Режим отладки')
@@ -109,6 +113,12 @@ def main():
             test.run(args.service, args.verbose, config, logger)
         elif args.command == 'deploy':
             deploy.run(args.template, args.name, args.config, config, logger)
+        elif args.command == 'research':
+            if hasattr(args, 'func'):
+                args.func(args)
+            else:
+                print("Используйте: jalm research --help для справки")
+                sys.exit(1)
         else:
             parser.print_help()
             sys.exit(1)
