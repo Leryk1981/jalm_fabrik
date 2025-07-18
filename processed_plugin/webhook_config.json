@@ -1,0 +1,20 @@
+{
+  "tenant_id": "demo_barbershop_001",
+  "channels": {
+    "telegram": {
+      "enabled": true,
+      "token": "{{TELEGRAM_BOT_TOKEN}}",
+      "webhook_url": "https://webhooks.jalm.io/tenant/demo_barbershop_001/chat"
+    },
+    "messenger": {
+      "enabled": true,
+      "page_token": "{{MESSENGER_PAGE_TOKEN}}",
+      "webhook_url": "https://webhooks.jalm.io/tenant/demo_barbershop_001/chat"
+    }
+  },
+  "llm_config": {
+    "model": "gpt-4",
+    "actions_file": "llm_actions.json",
+    "memory": "session"
+  }
+}

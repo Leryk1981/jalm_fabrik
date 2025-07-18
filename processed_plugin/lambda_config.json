@@ -1,0 +1,17 @@
+{
+  "function_name": "demo_barbershop_001_chatbot",
+  "runtime": "python3.9",
+  "memory": "512MB",
+  "timeout": 30,
+  "environment_variables": {
+    "TENANT_ID": "demo_barbershop_001",
+    "TELEGRAM_BOT_TOKEN": "{{TELEGRAM_BOT_TOKEN}}",
+    "MESSENGER_PAGE_TOKEN": "{{MESSENGER_PAGE_TOKEN}}",
+    "FIREBASE_PROJECT_ID": "{{FIREBASE_PROJECT_ID}}"
+  },
+  "layers": [
+    "jalm-core-runner",
+    "tula-spec-functions",
+    "shablon-spec-templates"
+  ]
+}

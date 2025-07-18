@@ -1,0 +1,67 @@
+{
+  "plugin_structure": {
+    "barbershop_plugin/OBJECT.jalm": true,
+    "barbershop_plugin/FILES/plugin.js": true,
+    "barbershop_plugin/FILES/llm_actions.json": true,
+    "barbershop_plugin/FILES/migrations.csv": true,
+    "barbershop_plugin/FILES/manifest.json": true
+  },
+  "jalm_object": {
+    "section_name": true,
+    "section_communication": true,
+    "section_llm": true,
+    "section_variables": true,
+    "section_requires": true,
+    "section_generate": true,
+    "variables": true
+  },
+  "plugin_js": {
+    "window.BARBERS": true,
+    "window.CHATBOT_URL": true,
+    "createBookingWidget": true,
+    "openTelegramChat": true,
+    "booking-modal": true,
+    "barber-item": true
+  },
+  "llm_actions": {
+    "load_success": true,
+    "intent_book_slot": true,
+    "intent_show_schedule": true,
+    "intent_welcome_message": true,
+    "action_book_slot": true,
+    "action_slot_reminder": true,
+    "action_show_schedule": true,
+    "action_cancel_booking": true,
+    "action_show_barbers": true,
+    "action_welcome_message": true,
+    "action_my_bookings": true,
+    "action_service_prices": true
+  },
+  "migrations_csv": {
+    "load_success": true,
+    "column_name": true,
+    "column_tg_id": true,
+    "column_photo": true,
+    "column_speciality": true,
+    "barber_0": true,
+    "barber_1": true,
+    "barber_2": true,
+    "barber_3": true,
+    "barber_4": true
+  },
+  "manifest": {
+    "field_name": true,
+    "field_version": true,
+    "field_entry_point": true,
+    "field_files": true,
+    "dependencies": true
+  },
+  "integration": {
+    "core_runner_health": true,
+    "tula_spec_health": true,
+    "shablon_spec_health": true,
+    "function_slot_validator": true,
+    "function_booking_widget": true,
+    "function_notify_system": true
+  }
+}
