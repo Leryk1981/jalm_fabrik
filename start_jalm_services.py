@@ -66,8 +66,8 @@ def main():
     services = [
         {
             "name": "Core Runner",
-            "port": 8888,
-            "command": "cd core-runner/kernel/src && python main.py"
+            "port": 8000,
+            "command": "cd core-runner/api && python main.py"
         },
         {
             "name": "Tula Spec", 

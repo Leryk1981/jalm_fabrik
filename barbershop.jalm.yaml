@@ -1,0 +1,68 @@
+app:
+  name: Барбершоп 'Классика'
+  type: booking_system
+  version: 1.0.0
+features:
+  booking_widget: true
+  telegram_notifications: true
+  admin_panel: true
+  slot_validation: true
+  payment_integration: false
+integrations:
+  telegram_bot:
+    enabled: true
+    config:
+      token: '{{TELEGRAM_BOT_TOKEN}}'
+      admin_chat_id: '{{ADMIN_CHAT_ID}}'
+  database:
+    type: postgresql
+    version: '15'
+  redis:
+    enabled: true
+    purpose: session_storage
+ui:
+  theme: classic
+  language: ru
+  responsive: true
+business_logic:
+  slot_duration: 60
+  advance_booking_days: 14
+  working_hours:
+    monday:
+      start: 09:00
+      end: '20:00'
+    tuesday:
+      start: 09:00
+      end: '20:00'
+    wednesday:
+      start: 09:00
+      end: '20:00'
+    thursday:
+      start: 09:00
+      end: '20:00'
+    friday:
+      start: 09:00
+      end: '20:00'
+    saturday:
+      start: '10:00'
+      end: '18:00'
+    sunday:
+      start: '10:00'
+      end: '16:00'
+  services:
+  - id: haircut
+    name: Стрижка
+    price: 1500
+    duration: 60
+  - id: beard
+    name: Стрижка бороды
+    price: 800
+    duration: 30
+  - id: combo
+    name: Стрижка + борода
+    price: 2000
+    duration: 90
+  - id: kids
+    name: Детская стрижка
+    price: 1000
+    duration: 45

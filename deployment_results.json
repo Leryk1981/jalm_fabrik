@@ -1,11 +1,196 @@
 {
-  "jalm_valid": true,
-  "files_processed": true,
-  "telegram_bot_created": true,
-  "webhook_configured": true,
-  "lambda_deployed": true,
-  "package_created": true,
-  "client_assets_generated": true,
-  "installation_guide_created": true,
-  "docker_build_ready": true
+  "jalm_config": {
+    "app": {
+      "name": "Барбершоп 'Классика'",
+      "type": "booking_system",
+      "version": "1.0.0"
+    },
+    "features": {
+      "booking_widget": true,
+      "telegram_notifications": true,
+      "admin_panel": true,
+      "slot_validation": true,
+      "payment_integration": false
+    },
+    "integrations": {
+      "telegram_bot": {
+        "enabled": true,
+        "config": {
+          "token": "{{TELEGRAM_BOT_TOKEN}}",
+          "admin_chat_id": "{{ADMIN_CHAT_ID}}"
+        }
+      },
+      "database": {
+        "type": "postgresql",
+        "version": "15"
+      },
+      "redis": {
+        "enabled": true,
+        "purpose": "session_storage"
+      }
+    },
+    "ui": {
+      "theme": "classic",
+      "language": "ru",
+      "responsive": true
+    },
+    "business_logic": {
+      "slot_duration": 60,
+      "advance_booking_days": 14,
+      "working_hours": {
+        "monday": {
+          "start": "09:00",
+          "end": "20:00"
+        },
+        "tuesday": {
+          "start": "09:00",
+          "end": "20:00"
+        },
+        "wednesday": {
+          "start": "09:00",
+          "end": "20:00"
+        },
+        "thursday": {
+          "start": "09:00",
+          "end": "20:00"
+        },
+        "friday": {
+          "start": "09:00",
+          "end": "20:00"
+        },
+        "saturday": {
+          "start": "10:00",
+          "end": "18:00"
+        },
+        "sunday": {
+          "start": "10:00",
+          "end": "16:00"
+        }
+      },
+      "services": [
+        {
+          "id": "haircut",
+          "name": "Стрижка",
+          "price": 1500,
+          "duration": 60
+        },
+        {
+          "id": "beard",
+          "name": "Стрижка бороды",
+          "price": 800,
+          "duration": 30
+        },
+        {
+          "id": "combo",
+          "name": "Стрижка + борода",
+          "price": 2000,
+          "duration": 90
+        },
+        {
+          "id": "kids",
+          "name": "Детская стрижка",
+          "price": 1000,
+          "duration": 45
+        }
+      ]
+    }
+  },
+  "jalm_path": "barbershop.jalm.yaml",
+  "instance_dir": "instances\\demo",
+  "provision_successful": true,
+  "provision_valid": true,
+  "provision_config": {
+    "app_id": "барбершоп_'классика'",
+    "env": "prod infra/docker/compose",
+    "dependencies": {
+      "datastore": {
+        "type": "postgresql:15",
+        "tier": "managed"
+      },
+      "api_layer": [
+        {
+          "service": "telegram_bot",
+          "version": "1.0.0",
+          "expose": "external",
+          "secrets": [
+            "${{secrets.TELEGRAM_TOKEN}}"
+          ]
+        }
+      ],
+      "tula_spec": [
+        {
+          "service": "slot_validator",
+          "version": "1.3.2",
+          "expose": "internal",
+          "description": "Валидатор слотов бронирования",
+          "tags": [
+            "booking",
+            "validation",
+            "slots"
+          ]
+        },
+        {
+          "service": "booking_widget",
+          "version": "1.3.2",
+          "expose": "internal",
+          "description": "Виджет для бронирования слотов",
+          "tags": [
+            "booking",
+            "widget",
+            "ui"
+          ]
+        },
+        {
+          "service": "notify_system",
+          "version": "1.0.0",
+          "expose": "internal",
+          "description": "Система уведомлений",
+          "tags": [
+            "notification",
+            "communication"
+          ]
+        }
+      ],
+      "shablon_spec": [
+        {
+          "service": "booking-flow",
+          "version": "1.0.0",
+          "expose": "internal",
+          "description": "Полный флоу бронирования слотов с валидацией и уведомлениями",
+          "category": "booking",
+          "tags": [
+            "booking",
+            "slots",
+            "notifications",
+            "validation"
+          ]
+        }
+      ]
+    },
+    "storage": {
+      "files": {
+        "type": "local",
+        "mount": "/app/FILES"
+      }
+    },
+    "net": {
+      "ingress": "nginx",
+      "domain": "{tenant}.run",
+      "channels": [
+        "telegram"
+      ]
+    },
+    "health": {
+      "endpoint": "/health",
+      "timeout": "3s"
+    },
+    "meta": {
+      "provisioner": "jalm-fullstack",
+      "force_service_discovery": true,
+      "app_type": "node"
+    }
+  },
+  "deployment_successful": true,
+  "docker_image": "barbershop_classic:latest",
+  "instructions_generated": true
 }

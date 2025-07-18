@@ -137,4 +137,8 @@ async def deploy(request: Request, jalm_text: str = Form(...)):
         return templates.TemplateResponse("main.html", {"request": request, "jalm": clean_jalm, "url": url, "error": None}, media_type="text/html; charset=utf-8")
     except Exception as e:
         logger.exception("Ошибка при деплое JALM-инстанса (UI)")
-        return templates.TemplateResponse("main.html", {"request": request, "jalm": clean_jalm, "url": None, "error": str(e)}, media_type="text/html; charset=utf-8") 
+        return templates.TemplateResponse("main.html", {"request": request, "jalm": clean_jalm, "url": None, "error": str(e)}, media_type="text/html; charset=utf-8")
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000) 

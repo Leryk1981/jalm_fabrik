@@ -1,67 +1,42 @@
 {
-  "plugin_structure": {
-    "barbershop_plugin/OBJECT.jalm": true,
-    "barbershop_plugin/FILES/plugin.js": true,
-    "barbershop_plugin/FILES/llm_actions.json": true,
-    "barbershop_plugin/FILES/migrations.csv": true,
-    "barbershop_plugin/FILES/manifest.json": true
-  },
-  "jalm_object": {
-    "section_name": true,
-    "section_communication": true,
-    "section_llm": true,
-    "section_variables": true,
-    "section_requires": true,
-    "section_generate": true,
-    "variables": true
-  },
-  "plugin_js": {
-    "window.BARBERS": true,
-    "window.CHATBOT_URL": true,
-    "createBookingWidget": true,
-    "openTelegramChat": true,
-    "booking-modal": true,
-    "barber-item": true
-  },
-  "llm_actions": {
-    "load_success": true,
-    "intent_book_slot": true,
-    "intent_show_schedule": true,
-    "intent_welcome_message": true,
-    "action_book_slot": true,
-    "action_slot_reminder": true,
-    "action_show_schedule": true,
-    "action_cancel_booking": true,
-    "action_show_barbers": true,
-    "action_welcome_message": true,
-    "action_my_bookings": true,
-    "action_service_prices": true
-  },
-  "migrations_csv": {
-    "load_success": true,
-    "column_name": true,
-    "column_tg_id": true,
-    "column_photo": true,
-    "column_speciality": true,
-    "barber_0": true,
-    "barber_1": true,
-    "barber_2": true,
-    "barber_3": true,
-    "barber_4": true
-  },
-  "manifest": {
-    "field_name": true,
-    "field_version": true,
-    "field_entry_point": true,
-    "field_files": true,
-    "dependencies": true
-  },
-  "integration": {
+  "jalm_services_health": {
     "core_runner_health": true,
     "tula_spec_health": true,
-    "shablon_spec_health": true,
+    "shablon_spec_health": true
+  },
+  "tula_spec_functions": {
+    "load_success": true,
     "function_slot_validator": true,
     "function_booking_widget": true,
-    "function_notify_system": true
+    "function_notify_system": true,
+    "metadata_slot_validator": true,
+    "metadata_booking_widget": true,
+    "metadata_notify_system": true
+  },
+  "shablon_spec_templates": {
+    "load_success": true,
+    "barbershop_template": true,
+    "template_field_name": false,
+    "template_field_description": true,
+    "template_field_files": false,
+    "template_field_config": false
+  },
+  "product_creation": {
+    "intent_dsl_created": true,
+    "product_created": false,
+    "error": "  File \"D:\\Projects_Clean\\Saas\\saas_provisioner.py\", line 532\n    interval: 30s\n               ^\nSyntaxError: invalid decimal literal\n"
+  },
+  "product_structure": {
+    "product_exists": false
+  },
+  "provision_yaml": {
+    "file_exists": false
+  },
+  "docker_configuration": {
+    "dockerfile_exists": false,
+    "compose_exists": false
+  },
+  "product_api": {
+    "main_py_exists": false
   }
 }

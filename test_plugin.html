@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест плагина demo - JALM Full Stack</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        .test-section {
+            margin: 25px 0;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: #fafafa;
+        }
+        .test-section h2 {
+            color: #555;
+            margin-top: 0;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .demo-area {
+            border: 3px dashed #007bff;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            background: #f8f9fa;
+            text-align: center;
+        }
+        .demo-area h3 {
+            color: #007bff;
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Тестирование плагина demo</h1>
+        
+        <div class="test-section">
+            <h2>📋 Информация о плагине</h2>
+            <div class="status info">
+                ✅ Плагин: demo<br>
+                ✅ API: http://localhost:8080/api<br>
+                ✅ Файлы: http://localhost:8080/FILES/
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>🔧 Проверка консоли</h2>
+            <p>Откройте консоль браузера (F12 → Console) и посмотрите на сообщения от плагина:</p>
+            <div class="status info">
+                Ожидаемые сообщения:<br>
+                🚀 demo виджет загружен<br>
+                📋 Каналы: telegram<br>
+                🔧 Tula services: []<br>
+                📋 Shablon services: []
+            </div>
+        </div>
+        
+        <div class="demo-area">
+            <h3>🎯 Область демонстрации плагина</h3>
+            <p>Плагин должен появиться ниже с кнопкой "Забронировать":</p>
+        </div>
+        
+        <div class="test-section">
+            <h2>📊 Функциональность</h2>
+            <ul>
+                <li>✅ Автоматическая инициализация виджета</li>
+                <li>✅ Отображение конфигурации продукта</li>
+                <li>✅ Кнопка бронирования слотов</li>
+                <li>✅ Интеграция с JALM API</li>
+                <li>✅ Современный UI дизайн</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Подключение плагина -->
+    <script src="http://localhost:8080/FILES/plugin.js"></script>
+</body>
+</html> 
