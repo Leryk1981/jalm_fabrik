@@ -1,0 +1,185 @@
+version: '3.8'
+
+services:
+  # Core Runner - ядро выполнения JALM
+  core-runner:
+    build: ./core-runner
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONPATH=/app
+      - JALM_ENV=production
+    volumes:
+      - ./core-runner:/app
+      - ./tool_catalog:/app/tool_catalog
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Tula Spec - реестр функций
+  tula-spec:
+    build: ./tula_spec
+    ports:
+      - "8001:8001"
+    environment:
+      - PYTHONPATH=/app
+      - JALM_ENV=production
+    volumes:
+      - ./tula_spec:/app
+      - ./tool_catalog:/app/tool_catalog
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Shablon Spec - реестр шаблонов
+  shablon-spec:
+    build: ./shablon_spec
+    ports:
+      - "8002:8002"
+    environment:
+      - PYTHONPATH=/app
+      - JALM_ENV=production
+    volumes:
+      - ./shablon_spec:/app
+      - ./tool_catalog:/app/tool_catalog
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Research Layer - аналитика и исследования
+  research:
+    build: ./research
+    ports:
+      - "8003:8003"
+    environment:
+      - PYTHONPATH=/app
+      - JALM_ENV=production
+    volumes:
+      - ./research:/app
+      - ./research/patterns:/app/patterns
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Context7 Helper - автоматический поиск кода
+  context7-helper:
+    build: ./context7_helper
+    environment:
+      - PYTHONPATH=/app
+      - JALM_ENV=production
+      - CONTEXT7_API_KEY=${CONTEXT7_API_KEY:-}
+    volumes:
+      - ./context7_helper:/app
+      - ./research:/app/research
+      - ./tool_candidates:/app/tool_candidates
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-m", "context7_helper.cli", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # UI Market Place - веб-интерфейс
+  ui-market:
+    build: ./ui-market
+    ports:
+      - "3000:80"
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - ./ui-market:/app
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Toolifier - автоматизация инструментов
+  toolifier:
+    build: ./toolifier
+    environment:
+      - PYTHONPATH=/app
+      - JALM_ENV=production
+    volumes:
+      - ./toolifier:/app
+      - ./tool_catalog:/app/tool_catalog
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import toolifier; print('Toolifier healthy')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # CLI - командная строка
+  cli:
+    build: ./cli
+    environment:
+      - PYTHONPATH=/app
+      - JALM_ENV=production
+    volumes:
+      - ./cli:/app
+      - ./core-runner:/app/core-runner
+      - ./tula_spec:/app/tula_spec
+      - ./shablon_spec:/app/shablon_spec
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-m", "cli.main", "--help"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # PostgreSQL - база данных
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=jalm
+      - POSTGRES_USER=jalm
+      - POSTGRES_PASSWORD=jalm_secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jalm -d jalm"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis - кэш и очереди
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  default:
+    name: jalm-network 
