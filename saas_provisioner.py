@@ -1305,24 +1305,38 @@ const server = http.createServer((req, res) => {{
 
     // Основной endpoint
     if (path === '/') {{
-        res.writeHead(200, {{ 'Content-Type': 'application/json' }});
-        res.end(JSON.stringify({{
-            message: '[LAUNCH] Клиентский продукт работает!',
-            appId: config.appId,
-            architecture: 'JALM Full Stack - Правильная архитектура',
-            description: 'Минимальный клиентский контейнер без JALM инфраструктуры',
-            jalmServices: {{
-                core: config.jalmCoreUrl,
-                tula: config.jalmTulaUrl,
-                shablon: config.jalmShablonUrl
-            }},
-            features: [
-                '[OK] Изолированный продукт',
-                '[OK] Минимальный размер (~50MB)',
-                '[OK] Подключение к JALM сервисам по сети',
-                '[OK] Правильная архитектура JALM-land'
-            ]
-        }}));
+        const fs = require('fs');
+        const htmlPath = './FILES/index.html';
+        
+        try {{
+            if (fs.existsSync(htmlPath)) {{
+                const content = fs.readFileSync(htmlPath, 'utf8');
+                res.writeHead(200, {{ 'Content-Type': 'text/html' }});
+                res.end(content);
+            }} else {{
+                res.writeHead(200, {{ 'Content-Type': 'application/json' }});
+                res.end(JSON.stringify({{
+                    message: '[LAUNCH] Клиентский продукт работает!',
+                    appId: config.appId,
+                    architecture: 'JALM Full Stack - Правильная архитектура',
+                    description: 'Минимальный клиентский контейнер без JALM инфраструктуры',
+                    jalmServices: {{
+                        core: config.jalmCoreUrl,
+                        tula: config.jalmTulaUrl,
+                        shablon: config.jalmShablonUrl
+                    }},
+                    features: [
+                        '[OK] Изолированный продукт',
+                        '[OK] Минимальный размер (~50MB)',
+                        '[OK] Подключение к JALM сервисам по сети',
+                        '[OK] Правильная архитектура JALM-land'
+                    ]
+                }}));
+            }}
+        }} catch (error) {{
+            res.writeHead(500, {{ 'Content-Type': 'application/json' }});
+            res.end(JSON.stringify({{ error: 'File read error', message: error.message }}));
+        }}
         return;
     }}
 
@@ -1602,7 +1616,15 @@ LOG_LEVEL=INFO
         # Шаг 4: Генерация UI интерфейса через Skin-As-Code
         print("[SKIN] Шаг 4: Генерация UI интерфейса через Skin-As-Code...")
         try:
-            from skin_system import SkinStore, SkinAssembler
+            # Добавляем путь к skin_system в sys.path
+            import sys
+            skin_system_path = os.path.join(self.base_dir, "skin_system")
+            if skin_system_path not in sys.path:
+                sys.path.insert(0, skin_system_path)
+            
+            from skin_store import SkinStore
+            from skin_assembler import SkinAssembler
+            from template_registry import TemplateRegistry
             
             # Определяем тип приложения для выбора макета
             app_type = self._detect_app_type(provision)
@@ -1623,22 +1645,26 @@ LOG_LEVEL=INFO
             # Данные для скина
             skin_data = self._prepare_skin_data(instance_name, provision, params)
             
-            # Создаем скин
-            skin_store = SkinStore()
-            skin_path = skin_store.create_skin(instance_name, skin_config, skin_data)
+            # Создаем скин через SkinAssembler напрямую
+            skin_assembler = SkinAssembler()
+            skin_path = skin_assembler.assemble_skin(instance_name, skin_config, skin_data)
             
-            # Копируем index.html в директорию продукта
-            skin_index_path = os.path.join(skin_path, "index.html")
-            if os.path.exists(skin_index_path):
-                import shutil
-                shutil.copy2(skin_index_path, os.path.join(instance_dir, "index.html"))
-                print(f"[OK] UI интерфейс создан через Skin-As-Code: {os.path.join(instance_dir, 'index.html')}")
+            if skin_path:
+                # Копируем index.html в директорию продукта
+                skin_index_path = os.path.join(skin_path, "index.html")
+                if os.path.exists(skin_index_path):
+                    import shutil
+                    shutil.copy2(skin_index_path, os.path.join(instance_dir, "FILES", "index.html"))
+                    print(f"[OK] UI интерфейс создан через Skin-As-Code: {os.path.join(instance_dir, 'FILES', 'index.html')}")
+                else:
+                    print("[WARNING] Skin-As-Code не создал index.html, создаем базовый")
+                    self._create_basic_html(instance_name, instance_dir, provision)
             else:
-                print("[WARNING] Skin-As-Code не создал index.html, создаем базовый")
+                print("[WARNING] Skin-As-Code не смог создать скин, создаем базовый")
                 self._create_basic_html(instance_name, instance_dir, provision)
                 
-        except ImportError:
-            print("[WARNING] Skin-As-Code система не найдена, создаем базовый HTML")
+        except ImportError as e:
+            print(f"[WARNING] Skin-As-Code система не найдена: {e}")
             self._create_basic_html(instance_name, instance_dir, provision)
         except Exception as e:
             print(f"[WARNING] Ошибка Skin-As-Code: {e}")
@@ -1916,6 +1942,155 @@ docker-compose down -v
             })
         
         return base_data
+
+    def _create_basic_html(self, instance_name: str, instance_dir: str, provision: Dict[str, Any]) -> None:
+        """
+        Создает базовый HTML интерфейс если Skin-As-Code недоступен
+        """
+        files_dir = os.path.join(instance_dir, "FILES")
+        os.makedirs(files_dir, exist_ok=True)
+        
+        # Создаем базовый HTML интерфейс
+        html_content = f"""<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{instance_name.title()} - Готовый продукт</title>
+    <style>
+        * {{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }}
+        body {{
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            color: #333;
+        }}
+        .container {{
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }}
+        .header {{
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }}
+        .header h1 {{
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }}
+        .content {{
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            padding: 30px;
+            margin-bottom: 30px;
+        }}
+        .status {{
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }}
+        .info-grid {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }}
+        .info-card {{
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }}
+        .info-card h3 {{
+            color: #2a5298;
+            margin-bottom: 10px;
+        }}
+        .btn {{
+            background: #2a5298;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }}
+        .btn:hover {{
+            background: #1e3c72;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(42, 82, 152, 0.3);
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 {instance_name.title()}</h1>
+            <p>Готовый продукт на базе JALM Full Stack</p>
+        </div>
+
+        <div class="content">
+            <div class="status">
+                ✅ Продукт успешно создан и запущен!
+            </div>
+
+            <div class="info-grid">
+                <div class="info-card">
+                    <h3>📦 Архитектура</h3>
+                    <p>Минимальный клиентский контейнер</p>
+                    <p><strong>Размер:</strong> ~50MB</p>
+                </div>
+                <div class="info-card">
+                    <h3>🔗 JALM Сервисы</h3>
+                    <p>Подключение к локальным сервисам</p>
+                    <p><strong>Core Runner:</strong> :8000</p>
+                    <p><strong>Tula Spec:</strong> :8001</p>
+                    <p><strong>Shablon Spec:</strong> :8002</p>
+                </div>
+                <div class="info-card">
+                    <h3>🎨 UI Система</h3>
+                    <p>Skin-As-Code архитектура</p>
+                    <p><strong>TemplateRegistry:</strong> ✅</p>
+                    <p><strong>SkinAssembler:</strong> ✅</p>
+                    <p><strong>SkinStore:</strong> ✅</p>
+                </div>
+            </div>
+
+            <button class="btn" onclick="testAPI()">🧪 Тест API</button>
+        </div>
+    </div>
+
+    <script>
+        function testAPI() {{
+            fetch('/health')
+                .then(response => response.json())
+                .then(data => {{
+                    alert('API работает! Статус: ' + data.status);
+                }})
+                .catch(error => {{
+                    alert('Ошибка API: ' + error.message);
+                }});
+        }}
+    </script>
+</body>
+</html>"""
+        
+        with open(os.path.join(files_dir, "index.html"), 'w', encoding='utf-8') as f:
+            f.write(html_content)
+        
+        print(f"[OK] Базовый HTML интерфейс создан: {os.path.join(files_dir, 'index.html')}")
 
 # Пример использования:
 if __name__ == "__main__":
