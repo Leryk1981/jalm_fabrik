@@ -1599,6 +1599,51 @@ LOG_LEVEL=INFO
         # Создание плагинов и дополнительных файлов продукта
         self.create_sample_product_files(instance_name, instance_dir, params, provision)
         
+        # Шаг 4: Генерация UI интерфейса через Skin-As-Code
+        print("[SKIN] Шаг 4: Генерация UI интерфейса через Skin-As-Code...")
+        try:
+            from skin_system import SkinStore, SkinAssembler
+            
+            # Определяем тип приложения для выбора макета
+            app_type = self._detect_app_type(provision)
+            layout_name = self._get_layout_for_app_type(app_type)
+            
+            # Конфигурация скина
+            skin_config = {
+                "name": f"{instance_name.title()} Skin",
+                "description": f"Автогенерированный скин для {instance_name}",
+                "layout": layout_name,
+                "theme": "default",
+                "version": "1.0.0",
+                "author": "JALM SaasProvisioner",
+                "custom_css": "",
+                "custom_js": ""
+            }
+            
+            # Данные для скина
+            skin_data = self._prepare_skin_data(instance_name, provision, params)
+            
+            # Создаем скин
+            skin_store = SkinStore()
+            skin_path = skin_store.create_skin(instance_name, skin_config, skin_data)
+            
+            # Копируем index.html в директорию продукта
+            skin_index_path = os.path.join(skin_path, "index.html")
+            if os.path.exists(skin_index_path):
+                import shutil
+                shutil.copy2(skin_index_path, os.path.join(instance_dir, "index.html"))
+                print(f"[OK] UI интерфейс создан через Skin-As-Code: {os.path.join(instance_dir, 'index.html')}")
+            else:
+                print("[WARNING] Skin-As-Code не создал index.html, создаем базовый")
+                self._create_basic_html(instance_name, instance_dir, provision)
+                
+        except ImportError:
+            print("[WARNING] Skin-As-Code система не найдена, создаем базовый HTML")
+            self._create_basic_html(instance_name, instance_dir, provision)
+        except Exception as e:
+            print(f"[WARNING] Ошибка Skin-As-Code: {e}")
+            self._create_basic_html(instance_name, instance_dir, provision)
+        
         # Создание Dockerfile для клиентского продукта
         self.create_client_dockerfile(instance_name, instance_dir, provision)
         
@@ -1643,6 +1688,27 @@ LOG_LEVEL=INFO
 - **Tula Spec**: http://localhost:8001 (запускается отдельно)
 - **Shablon Spec**: http://localhost:8002 (запускается отдельно)
 - Запускаются **локально** через start_jalm_services.py
+
+## [SKIN] Skin-As-Code система
+
+UI интерфейс создан через **Skin-As-Code** систему:
+
+### Три доски архитектуры:
+1. **TemplateRegistry** - глобальный магазин шаблонных блоков
+2. **SkinAssembler** - bundler для сборки интерфейсов  
+3. **SkinStore** - git-репозиторий скинов
+
+### Управление скинами:
+```bash
+# Создание нового скина
+npm run create-skin -- client={instance_name} color=2f7cff
+
+# Список скинов
+npm run list-skins
+
+# Валидация скина
+npm run validate-skin -- client={instance_name}
+```
 
 ## [LAUNCH] Быстрый запуск
 
@@ -1689,6 +1755,7 @@ docker-compose logs -f {instance_name}
 ├── config/              # Конфигурация
 │   ├── provision.yaml  # Provision конфигурация
 │   └── .env           # Переменные окружения
+├── index.html          # UI интерфейс (Skin-As-Code)
 ├── package.json         # Node.js зависимости
 ├── requirements.txt     # Python зависимости
 ├── Dockerfile          # Docker образ (минимальный)
@@ -1718,6 +1785,7 @@ docker-compose down -v
 - Подключается к **локальным JALM сервисам** по сети
 - Следует **правильной архитектуре** JALM-land
 - **НЕ включает** JALM инфраструктуру в образ
+- **Автоматически генерирует UI** через Skin-As-Code
 
 ## [STATS] Размеры образов
 
@@ -1730,8 +1798,9 @@ docker-compose down -v
 
 1. **Intent-DSL** → парсинг JALM файла
 2. **Provision Scanner** → генерация provision.yaml
-3. **Core Runner** → создание минимального клиентского продукта
-4. **Клиентский продукт** → подключение к JALM сервисам по сети
+3. **Skin-As-Code** → автоматическая генерация интерфейса
+4. **Core Runner** → создание минимального клиентского продукта
+5. **Клиентский продукт** → подключение к JALM сервисам по сети
 """
         
         with open(os.path.join(instance_dir, "README.md"), 'w', encoding='utf-8') as f:
@@ -1749,9 +1818,104 @@ docker-compose down -v
         print(f"[SUCCESS] Клиентский продукт {instance_name} создан и запущен!")
         print(f"[WEB] URL: {url}")
         print(f"[DIR] Директория: {instance_dir}")
-        print(f"[STATS] Архитектура: Минимальный клиент + готовые JALM образы")
+        print(f"[STATS] Архитектура: Минимальный клиент + готовые JALM образы + Skin-As-Code")
         
         return url
+
+    def _detect_app_type(self, provision: Dict[str, Any]) -> str:
+        """Определяет тип приложения на основе provision.yaml"""
+        dependencies = provision.get("dependencies", {})
+        tula_services = dependencies.get("tula_spec", [])
+        api_layer_services = dependencies.get("api_layer", [])
+        
+        # Анализируем сервисы для определения типа
+        service_names = [s.get("service", "").lower() for s in tula_services + api_layer_services]
+        
+        if any("booking" in name or "slot" in name for name in service_names):
+            return "booking"
+        elif any("ecommerce" in name or "order" in name or "payment" in name for name in service_names):
+            return "ecommerce"
+        elif any("notification" in name or "communication" in name or "email" in name for name in service_names):
+            return "communication"
+        else:
+            return "general"
+    
+    def _get_layout_for_app_type(self, app_type: str) -> str:
+        """Возвращает подходящий макет для типа приложения"""
+        layout_mapping = {
+            "booking": "booking_page",
+            "ecommerce": "ecommerce_page", 
+            "communication": "contact_page",
+            "general": "booking_page"
+        }
+        return layout_mapping.get(app_type, "booking_page")
+    
+    def _prepare_skin_data(self, instance_name: str, provision: Dict[str, Any], params: Dict[str, Any]) -> Dict[str, Any]:
+        """Подготавливает данные для Skin-As-Code системы"""
+        app_type = self._detect_app_type(provision)
+        
+        base_data = {
+            "app_name": instance_name.title(),
+            "app_id": provision.get("app_id", "unknown"),
+            "api_url": "http://localhost:8080"
+        }
+        
+        if app_type == "booking":
+            # Данные для системы бронирования
+            base_data.update({
+                "services": [
+                    {"id": "haircut", "name": "Стрижка", "price": 1500, "duration": 60},
+                    {"id": "beard", "name": "Стрижка бороды", "price": 800, "duration": 30},
+                    {"id": "combo", "name": "Стрижка + борода", "price": 2000, "duration": 90},
+                    {"id": "kids", "name": "Детская стрижка", "price": 1000, "duration": 45}
+                ],
+                "working_hours": {
+                    "понедельник": {"start": "09:00", "end": "20:00"},
+                    "вторник": {"start": "09:00", "end": "20:00"},
+                    "среда": {"start": "09:00", "end": "20:00"},
+                    "четверг": {"start": "09:00", "end": "20:00"},
+                    "пятница": {"start": "09:00", "end": "20:00"},
+                    "суббота": {"start": "10:00", "end": "18:00"},
+                    "воскресенье": {"start": "10:00", "end": "16:00"}
+                },
+                "contact_info": {
+                    "phone": "+7 (999) 123-45-67",
+                    "email": f"info@{instance_name}.com",
+                    "address": f"ул. {instance_name.title()}, 1"
+                }
+            })
+        elif app_type == "ecommerce":
+            # Данные для e-commerce
+            base_data.update({
+                "products": [
+                    {"id": "product1", "name": "Товар 1", "price": 1000, "description": "Описание товара 1"},
+                    {"id": "product2", "name": "Товар 2", "price": 2000, "description": "Описание товара 2"},
+                    {"id": "product3", "name": "Товар 3", "price": 1500, "description": "Описание товара 3"}
+                ],
+                "contact_info": {
+                    "phone": "+7 (999) 123-45-67",
+                    "email": f"shop@{instance_name}.com",
+                    "address": f"ул. {instance_name.title()}, 1"
+                }
+            })
+        else:
+            # Общие данные
+            services = []
+            for service in provision.get("dependencies", {}).get("tula_spec", []):
+                services.append({
+                    "name": service.get("service", "unknown"),
+                    "version": service.get("version", "latest")
+                })
+            base_data.update({
+                "services": services,
+                "contact_info": {
+                    "phone": "+7 (999) 123-45-67",
+                    "email": f"info@{instance_name}.com",
+                    "address": f"ул. {instance_name.title()}, 1"
+                }
+            })
+        
+        return base_data
 
 # Пример использования:
 if __name__ == "__main__":
