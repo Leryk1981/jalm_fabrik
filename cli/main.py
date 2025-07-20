@@ -46,12 +46,12 @@ def cli():
     pass
 
 # Регистрация команд
-cli.add_command(up.up)
-cli.add_command(down.down)
-cli.add_command(status.status)
-cli.add_command(logs.logs)
-cli.add_command(test.test)
-cli.add_command(deploy.deploy)
+cli.add_command(up.run)
+cli.add_command(down.run)
+cli.add_command(status.run)
+cli.add_command(logs.run)
+cli.add_command(test.run)
+cli.add_command(deploy.run)
 cli.add_command(research.research)
 
 # Регистрация context7 если доступен

@@ -1,0 +1,6 @@
+action_id,actor,source,freq,blocker
+schedule_booking,client,widget,daily,payment
+process_payment,client,api,high,gateway
+send_notification,client,email,medium,server
+validate_slot,client,api,high,calendar
+create_user,client,form,low,database 

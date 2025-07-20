@@ -115,7 +115,7 @@ class ToolCandidateGenerator:
         metadata = {
             "source": {
                 "repo": result.repo,
-                "file": result.source_file,
+                "file": result.file_path,
                 "url": result.url,
                 "license": result.license,
                 "stars": result.stars
@@ -239,7 +239,7 @@ class ToolCandidateGenerator:
             category=category,
             language=result.language,
             source_repo=result.repo,
-            source_file=result.source_file,
+            source_file=result.file_path,
             function_name=result.function_name,
             signature=result.signature,
             example_code=result.example,

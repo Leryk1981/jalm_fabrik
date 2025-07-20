@@ -7,17 +7,39 @@
 PYTHON = python
 PIP = pip
 MODULE = context7_helper
-CLI_SCRIPT = $(PYTHON) -m $(MODULE).cli
+CLI_SCRIPT = cd .. && $(PYTHON) -m $(MODULE).cli
 
 help: ## Показать справку
 	@echo "Context7 Helper - автоматический поиск кода для JALM Full Stack"
 	@echo ""
 	@echo "Доступные команды:"
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'
+	@echo "  install         - Установить зависимости"
+	@echo "  test            - Запустить тесты"
+	@echo "  test-coverage   - Запустить тесты с покрытием"
+	@echo "  clean           - Очистить временные файлы"
+	@echo "  search          - Поиск кода (пример)"
+	@echo "  generate        - Генерация кандидатов из Research Layer"
+	@echo "  status          - Статус Context7 Helper"
+	@echo "  cleanup         - Очистка старых кандидатов"
+	@echo "  test-integration- Тестирование интеграции"
+	@echo "  docker-build    - Сборка Docker образа"
+	@echo "  docker-run      - Запуск в Docker"
+	@echo "  jalm-integrate  - Интеграция с JALM Full Stack CLI"
+	@echo "  dev-install     - Установка для разработки"
+	@echo "  format          - Форматирование кода"
+	@echo "  lint            - Проверка кода"
+	@echo "  demo            - Демонстрация функциональности"
+	@echo "  pipeline        - Запуск полного пайплайна"
+	@echo "  windows-install - Установка на Windows"
+	@echo "  windows-test    - Тесты на Windows"
+	@echo "  windows-search  - Поиск на Windows"
+	@echo "  windows-generate- Генерация на Windows"
+	@echo "  docs            - Генерация документации"
+	@echo "  stats           - Статистика проекта"
 
 install: ## Установить зависимости
 	$(PIP) install -r requirements.txt
-	$(PIP) install -e .
+	cd .. && $(PIP) install -e .
 
 test: ## Запустить тесты
 	$(PYTHON) -m pytest test_context7.py -v
@@ -26,16 +48,20 @@ test-coverage: ## Запустить тесты с покрытием
 	$(PYTHON) -m pytest test_context7.py --cov=$(MODULE) --cov-report=html
 
 clean: ## Очистить временные файлы
-	find . -type f -name "*.pyc" -delete
-	find . -type d -name "__pycache__" -delete
-	find . -type d -name "*.egg-info" -exec rm -rf {} +
-	rm -rf build/ dist/ .pytest_cache/ htmlcov/
+	@echo "Очистка временных файлов..."
+	@if exist *.pyc del /Q *.pyc
+	@if exist __pycache__ rmdir /S /Q __pycache__
+	@if exist *.egg-info rmdir /S /Q *.egg-info
+	@if exist build rmdir /S /Q build
+	@if exist dist rmdir /S /Q dist
+	@if exist .pytest_cache rmdir /S /Q .pytest_cache
+	@if exist htmlcov rmdir /S /Q htmlcov
 
 search: ## Поиск кода (пример)
 	$(CLI_SCRIPT) search --query "booking system" --top-k 3
 
 generate: ## Генерация кандидатов из Research Layer
-	$(CLI_SCRIPT) generate --research-dir ../research --top-k 3
+	$(CLI_SCRIPT) generate --research-dir research --top-k 3
 
 status: ## Статус Context7 Helper
 	$(CLI_SCRIPT) status
@@ -60,17 +86,17 @@ docker-run: ## Запуск в Docker
 # Интеграция с JALM Full Stack
 jalm-integrate: ## Интеграция с JALM Full Stack CLI
 	@echo "Добавление Context7 Helper в JALM CLI..."
-	@if [ -f "../cli/commands/context7.py" ]; then \
-		echo "✅ Context7 Helper уже интегрирован в CLI"; \
-	else \
-		echo "❌ Context7 Helper не интегрирован в CLI"; \
-		echo "Скопируйте cli/commands/context7.py в ../cli/commands/"; \
-	fi
+	@if exist "../cli/commands/context7.py" ( \
+		echo "Context7 Helper уже интегрирован в CLI" \
+	) else ( \
+		echo "Context7 Helper не интегрирован в CLI" \
+		echo "Скопируйте cli/commands/context7.py в ../cli/commands/" \
+	)
 
 # Разработка
 dev-install: ## Установка для разработки
 	$(PIP) install -r requirements.txt
-	$(PIP) install -e .[dev]
+	cd .. && $(PIP) install -e .[dev]
 
 format: ## Форматирование кода
 	black $(MODULE)/*.py
@@ -82,7 +108,7 @@ lint: ## Проверка кода
 
 # Демонстрация
 demo: ## Демонстрация функциональности
-	@echo "🎯 Демонстрация Context7 Helper"
+	@echo "Демонстрация Context7 Helper"
 	@echo ""
 	@echo "1. Проверка статуса:"
 	$(CLI_SCRIPT) status
@@ -95,43 +121,42 @@ demo: ## Демонстрация функциональности
 
 # Полный пайплайн
 pipeline: ## Запуск полного пайплайна
-	@echo "🚀 Запуск полного пайплайна Context7 Helper"
+	@echo "Запуск полного пайплайна Context7 Helper"
 	@echo "1. Проверка статуса..."
 	$(CLI_SCRIPT) status
 	@echo "2. Генерация кандидатов..."
-	$(CLI_SCRIPT) generate --research-dir ../research --top-k 3
+	$(CLI_SCRIPT) generate --research-dir research --top-k 3
 	@echo "3. Очистка старых файлов..."
 	$(CLI_SCRIPT) cleanup --days 7
-	@echo "✅ Пайплайн завершен!"
+	@echo "Пайплайн завершен!"
 
 # Windows совместимость
 windows-install: ## Установка на Windows
-	python -m pip install -r requirements.txt
-	python -m pip install -e .
+	$(PIP) install -r requirements.txt
+	cd .. && $(PIP) install -e .
 
 windows-test: ## Тесты на Windows
-	python -m pytest test_context7.py -v
+	$(PYTHON) -m pytest test_context7.py -v
 
 windows-search: ## Поиск на Windows
-	python -m context7_helper.cli search --query "booking system" --top-k 3
+	$(CLI_SCRIPT) search --query "booking system" --top-k 3
 
 windows-generate: ## Генерация на Windows
-	python -m context7_helper.cli generate --research-dir ../research --top-k 3
+	$(CLI_SCRIPT) generate --research-dir research --top-k 3
 
 # Документация
 docs: ## Генерация документации
-	@echo "📚 Генерация документации..."
-	@if command -v pdoc3 >/dev/null 2>&1; then \
-		pdoc3 --html $(MODULE) --output-dir docs; \
-		echo "✅ Документация сгенерирована в docs/"; \
-	else \
-		echo "❌ pdoc3 не установлен. Установите: pip install pdoc3"; \
-	fi
+	@echo "Генерация документации..."
+	@python -c "import pdoc3; pdoc3.pdoc('$(MODULE)', output_directory='docs')" 2>nul || echo "pdoc3 не установлен. Установите: pip install pdoc3"
 
 # Статистика
 stats: ## Статистика проекта
-	@echo "📊 Статистика Context7 Helper:"
-	@echo "Файлы Python: $(shell find $(MODULE) -name '*.py' | wc -l)"
-	@echo "Строки кода: $(shell find $(MODULE) -name '*.py' -exec wc -l {} + | tail -1)"
-	@echo "Тесты: $(shell find . -name 'test_*.py' | wc -l)"
-	@echo "Кандидаты: $(shell find tool_candidates -name '*.json' 2>/dev/null | wc -l || echo 0)" 
+	@echo "Статистика Context7 Helper:"
+	@echo "Файлы Python:"
+	@dir /B *.py 2>nul | find /C /V "" || echo 0
+	@echo "Строки кода:"
+	@findstr /R /N "^" *.py 2>nul | find /C /V "" || echo 0
+	@echo "Тесты:"
+	@dir /B test_*.py 2>nul | find /C /V "" || echo 0
+	@echo "Кандидаты:"
+	@if exist tool_candidates\*.json (dir /B tool_candidates\*.json | find /C /V "") else (echo 0) 

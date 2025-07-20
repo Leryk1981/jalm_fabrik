@@ -23,7 +23,8 @@
   },
   "product_creation": {
     "intent_dsl_created": true,
-    "product_created": true
+    "product_created": false,
+    "error": "time=\"2025-07-20T18:36:21+02:00\" level=warning msg=\"D:\\\\Projects_Clean\\\\Saas\\\\instances\\\\ivan\\\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion\"\nunable to get image 'ivan-ivan': error during connect: Get \"http://%2F%2F.%2Fpipe%2FdockerDesktopLinuxEngine/v1.51/images/ivan-ivan/json\": open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified.\nTraceback (most recent call last):\n  File \"D:\\Projects_Clean\\Saas\\saas_provisioner.py\", line 1542, in launch_instance\n    subprocess.run([\n  File \"D:\\python\\Lib\\subprocess.py\", line 571, in run\n    raise CalledProcessError(retcode, process.args,\nsubprocess.CalledProcessError: Command '['docker-compose', 'up', '-d']' returned non-zero exit status 1.\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"D:\\Projects_Clean\\Saas\\saas_provisioner.py\", line 1759, in <module>\n    url = provisioner.provision(\"./config.jalm\")\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\Projects_Clean\\Saas\\saas_provisioner.py\", line 1747, in provision\n    url = self.launch_instance(instance_name, instance_dir)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\Projects_Clean\\Saas\\saas_provisioner.py\", line 1553, in launch_instance\n    raise RuntimeError(f\"Ошибка запуска docker-compose: {e}\")\nRuntimeError: Ошибка запуска docker-compose: Command '['docker-compose', 'up', '-d']' returned non-zero exit status 1.\n"
   },
   "product_structure": {
     "product_exists": true,

@@ -15,14 +15,17 @@ __version__ = "1.0.0"
 __author__ = "JALM Foundation"
 __description__ = "Context7 Helper для автоматического поиска кода"
 
-from .client import Context7APIClient
-from .searcher import CodeSearcher
-from .generator import ToolCandidateGenerator
+from .client import Context7APIClient, Context7Result
+from .searcher import CodeSearcher, SearchQuery
+from .generator import ToolCandidateGenerator, ToolCandidate
 from .integration import IntegrationManager
 
 __all__ = [
     "Context7APIClient",
+    "Context7Result",
     "CodeSearcher", 
+    "SearchQuery",
     "ToolCandidateGenerator",
+    "ToolCandidate",
     "IntegrationManager"
 ] 

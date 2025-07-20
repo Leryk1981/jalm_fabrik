@@ -12,6 +12,7 @@ import sys
 from pathlib import Path
 from typing import Optional
 from .integration import IntegrationManager
+import click
 
 logger = logging.getLogger(__name__)
 
@@ -62,6 +63,10 @@ def main():
     cleanup_parser = subparsers.add_parser('cleanup', help='Очистка старых кандидатов')
     cleanup_parser.add_argument('--days', type=int, default=7, help='Количество дней для хранения')
     
+    # Команда test
+    test_parser = subparsers.add_parser('test', help='Тестирование функциональности')
+    test_parser.add_argument('--verbose', action='store_true', help='Подробный вывод')
+    
     # Общие аргументы
     parser.add_argument('--verbose', '-v', action='store_true', help='Подробный вывод')
     parser.add_argument('--api-key', help='API ключ для Context7')
@@ -87,6 +92,8 @@ def main():
             return handle_status(manager, args)
         elif args.command == 'cleanup':
             return handle_cleanup(manager, args)
+        elif args.command == 'test':
+            return handle_test(manager, args)
         else:
             logger.error(f"Неизвестная команда: {args.command}")
             return 1
@@ -117,20 +124,21 @@ def handle_search(manager: IntegrationManager, args) -> int:
             return 0
         
         # Выводим результаты
-        print(f"\nНайдено {len(results)} результатов:\n")
+        click.echo(f"\nНайдено {len(results)} результатов:\n")
         
         for i, result in enumerate(results, 1):
-            print(f"{i}. {result.function_name}")
-            print(f"   Репозиторий: {result.repo}")
-            print(f"   Файл: {result.source_file}")
-            print(f"   Скор: {result.score:.3f}")
-            print(f"   Звезды: {result.stars}")
-            print(f"   Лицензия: {result.license}")
-            print(f"   Пример: {result.example[:100]}...")
-            print()
+            click.echo(f"{i}. {result.function_name}")
+            click.echo(f"   Репозиторий: {result.repo}")
+            click.echo(f"   Файл: {result.source_file}")
+            click.echo(f"   Скор: {result.score:.3f}")
+            click.echo(f"   Звезды: {result.stars}")
+            click.echo(f"   Лицензия: {result.license}")
+            click.echo(f"   Пример: {result.example[:100]}...")
+            click.echo()
         
         # Сохраняем в файл если указан
         if args.output:
+            import json
             output_data = []
             for result in results:
                 output_data.append({
@@ -146,7 +154,7 @@ def handle_search(manager: IntegrationManager, args) -> int:
             with open(args.output, 'w', encoding='utf-8') as f:
                 json.dump(output_data, f, indent=2, ensure_ascii=False)
             
-            logger.info(f"Результаты сохранены в {args.output}")
+            click.echo(f"Результаты сохранены в {args.output}")
         
         return 0
         
@@ -167,22 +175,22 @@ def handle_generate(manager: IntegrationManager, args) -> int:
             return 1
         
         # Выводим отчет
-        print(f"\n✅ Пайплайн завершен успешно!")
-        print(f"📊 Обработано действий: {result['processed_actions']}")
-        print(f"🔍 Поисковых запросов: {result['search_queries']}")
-        print(f"🎯 Создано кандидатов: {result['generated_candidates']}")
+        click.echo(f"\nПайплайн завершен успешно!")
+        click.echo(f"Обработано действий: {result['processed_actions']}")
+        click.echo(f"Поисковых запросов: {result['search_queries']}")
+        click.echo(f"Создано кандидатов: {result['generated_candidates']}")
         
         if result['categories']:
-            print(f"\n📂 По категориям:")
+            click.echo(f"\nПо категориям:")
             for category, count in result['categories'].items():
-                print(f"   {category}: {count}")
+                click.echo(f"   {category}: {count}")
         
-        print(f"\n💾 Сохранено файлов:")
+        click.echo(f"\nСохранено файлов:")
         for file_type, paths in result['saved_files'].items():
             if isinstance(paths, list):
-                print(f"   {file_type}: {len(paths)} файлов")
+                click.echo(f"   {file_type}: {len(paths)} файлов")
             else:
-                print(f"   {file_type}: {paths}")
+                click.echo(f"   {file_type}: {paths}")
         
         return 0
         
@@ -197,14 +205,14 @@ def handle_status(manager: IntegrationManager, args) -> int:
     try:
         status = manager.get_status()
         
-        print(f"\n📊 Статус Context7 Helper:")
-        print(f"🔌 Context7 API: {'✅ Доступен' if status['context7_api'] else '❌ Недоступен'}")
-        print(f"📁 Директория вывода: {status['output_directory']}")
-        print(f"📂 Директория существует: {'✅ Да' if status['output_directory_exists'] else '❌ Нет'}")
-        print(f"🎯 Всего кандидатов: {status['candidates_count']}")
+        print(f"\nСтатус Context7 Helper:")
+        print(f"Context7 API: {'Доступен' if status['context7_api'] else 'Недоступен'}")
+        print(f"Директория вывода: {status['output_directory']}")
+        print(f"Директория существует: {'Да' if status['output_directory_exists'] else 'Нет'}")
+        print(f"Всего кандидатов: {status['candidates_count']}")
         
         if status['categories']:
-            print(f"\n📂 Кандидаты по категориям:")
+            print(f"\nКандидаты по категориям:")
             for category, count in status['categories'].items():
                 print(f"   {category}: {count}")
         
@@ -228,6 +236,47 @@ def handle_cleanup(manager: IntegrationManager, args) -> int:
         
     except Exception as e:
         logger.error(f"Ошибка при очистке: {e}")
+        return 1
+
+def handle_test(manager: IntegrationManager, args) -> int:
+    """Обработка команды test"""
+    logger.info("Тестирование функциональности Context7 Helper")
+    
+    try:
+        # Тест 1: Проверка статуса
+        print("1. Тест статуса...")
+        status = manager.get_status()
+        print(f"   Статус получен: {status['context7_api']}")
+        
+        # Тест 2: Проверка поиска
+        print("2. Тест поиска...")
+        from .searcher import SearchQuery
+        query = SearchQuery(
+            action_name="test_search",
+            description="Test search functionality",
+            language="python"
+        )
+        results = manager.searcher.search(query, 1)
+        print(f"   Поиск выполнен: {len(results)} результатов")
+        
+        # Тест 3: Проверка генератора
+        print("3. Тест генератора...")
+        if results:
+            candidate = manager.generator.create_candidate(results[0], query)
+            print(f"   Кандидат создан: {candidate.name}")
+        else:
+            print("   Кандидат не создан (нет результатов поиска)")
+        
+        # Тест 4: Проверка интеграции
+        print("4. Тест интеграции...")
+        integration_status = manager.get_status()
+        print(f"   Интеграция работает: {integration_status['output_directory_exists']}")
+        
+        print("\nВсе тесты завершены!")
+        return 0
+        
+    except Exception as e:
+        logger.error(f"Ошибка при тестировании: {e}")
         return 1
 
 if __name__ == "__main__":

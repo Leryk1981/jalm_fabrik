@@ -454,3 +454,73 @@ def add_research_parser(subparsers: argparse._SubParsersAction) -> None:
         help='Показать логи Research Layer'
     )
     docker_logs_parser.set_defaults(func=research_docker_logs) 
+
+# Click команда для совместимости с CLI
+import click
+
+@click.group()
+def research():
+    """Research Layer - управление аналитикой и исследованиями"""
+    pass
+
+@research.command()
+@click.option('--format', default='csv', type=click.Choice(['csv', 'json', 'yaml']), help='Формат выходных файлов')
+def collect(format):
+    """Сбор данных через Research Layer"""
+    import argparse
+    args = argparse.Namespace()
+    args.format = format
+    return research_collect(args)
+
+@research.command()
+@click.option('--input-file', help='Путь к файлу с данными для анализа')
+@click.option('--format', default='json', type=click.Choice(['csv', 'json', 'yaml']), help='Формат выходных файлов')
+def analyze(input_file, format):
+    """Анализ паттернов через Research Layer"""
+    import argparse
+    args = argparse.Namespace()
+    args.input_file = input_file
+    args.format = format
+    return research_analyze(args)
+
+@research.command()
+def integrate():
+    """Интеграция с JALM компонентами"""
+    import argparse
+    args = argparse.Namespace()
+    return research_integrate(args)
+
+@research.command()
+def status():
+    """Статус Research Layer"""
+    import argparse
+    args = argparse.Namespace()
+    return research_status(args)
+
+@research.command()
+def docker_build():
+    """Собрать Docker образ для Research Layer"""
+    import argparse
+    args = argparse.Namespace()
+    return research_docker_build(args)
+
+@research.command()
+def docker_up():
+    """Запустить Research Layer в Docker"""
+    import argparse
+    args = argparse.Namespace()
+    return research_docker_up(args)
+
+@research.command()
+def docker_down():
+    """Остановить Research Layer в Docker"""
+    import argparse
+    args = argparse.Namespace()
+    return research_docker_down(args)
+
+@research.command()
+def docker_logs():
+    """Показать логи Research Layer"""
+    import argparse
+    args = argparse.Namespace()
+    return research_docker_logs(args) 
