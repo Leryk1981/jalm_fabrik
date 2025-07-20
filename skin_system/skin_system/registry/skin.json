@@ -1,0 +1,531 @@
+{
+  "widgets": {
+    "booking_form": {
+      "type": "form",
+      "template": "booking_form.html",
+      "css": "booking_form.css",
+      "js": "booking_form.js",
+      "props": [
+        "services",
+        "time_slots",
+        "contact_fields"
+      ],
+      "description": "Форма бронирования с выбором услуг и времени"
+    },
+    "service_card": {
+      "type": "card",
+      "template": "service_card.html",
+      "css": "service_card.css",
+      "js": "service_card.js",
+      "props": [
+        "name",
+        "price",
+        "duration",
+        "description"
+      ],
+      "description": "Карточка услуги с ценой и описанием"
+    },
+    "time_slot_picker": {
+      "type": "picker",
+      "template": "time_slot_picker.html",
+      "css": "time_slot_picker.css",
+      "js": "time_slot_picker.js",
+      "props": [
+        "date",
+        "slots",
+        "selected_time"
+      ],
+      "description": "Выбор временного слота"
+    },
+    "product_grid": {
+      "type": "grid",
+      "template": "product_grid.html",
+      "css": "product_grid.css",
+      "js": "product_grid.js",
+      "props": [
+        "products",
+        "columns"
+      ],
+      "description": "Сетка товаров/услуг"
+    },
+    "contact_form": {
+      "type": "form",
+      "template": "contact_form.html",
+      "css": "contact_form.css",
+      "js": "contact_form.js",
+      "props": [
+        "fields",
+        "submit_text"
+      ],
+      "description": "Контактная форма"
+    },
+    "working_hours": {
+      "type": "info",
+      "template": "working_hours.html",
+      "css": "working_hours.css",
+      "js": "working_hours.js",
+      "props": [
+        "schedule",
+        "timezone"
+      ],
+      "description": "Отображение часов работы"
+    },
+    "header": {
+      "type": "component",
+      "template": "header.html",
+      "css": "header.css",
+      "js": "header.js",
+      "props": [
+        "title",
+        "subtitle",
+        "logo"
+      ],
+      "description": "Заголовок страницы с логотипом"
+    },
+    "footer": {
+      "type": "component",
+      "template": "footer.html",
+      "css": "footer.css",
+      "js": "footer.js",
+      "props": [
+        "company_info",
+        "links",
+        "social"
+      ],
+      "description": "Подвал страницы"
+    },
+    "test_client_theme": {
+      "description": "Кастомная тема для test_client",
+      "colors": {
+        "primary": "#2f7cff",
+        "secondary": "#1b68eb",
+        "accent": "#28a745",
+        "background": "#f5f5f5",
+        "text": "#333333"
+      },
+      "fonts": {
+        "heading": "Inter, sans-serif",
+        "body": "Inter, sans-serif"
+      }
+    },
+    "source_client_theme": {
+      "description": "Кастомная тема для source_client",
+      "colors": {
+        "primary": "#2f7cff",
+        "secondary": "#1b68eb",
+        "accent": "#28a745",
+        "background": "#f5f5f5",
+        "text": "#333333"
+      },
+      "fonts": {
+        "heading": "Inter, sans-serif",
+        "body": "Inter, sans-serif"
+      }
+    },
+    "test_theme": {
+      "description": "Кастомная тема для test",
+      "colors": {
+        "primary": "#2f7cff",
+        "secondary": "#1b68eb",
+        "accent": "#28a745",
+        "background": "#f5f5f5",
+        "text": "#333333"
+      },
+      "fonts": {
+        "heading": "Inter, sans-serif",
+        "body": "Inter, sans-serif"
+      }
+    },
+    "workflow_test_theme": {
+      "description": "Кастомная тема для workflow_test",
+      "colors": {
+        "primary": "#2f7cff",
+        "secondary": "#1b68eb",
+        "accent": "#28a745",
+        "background": "#f5f5f5",
+        "text": "#333333"
+      },
+      "fonts": {
+        "heading": "Inter, sans-serif",
+        "body": "Inter, sans-serif"
+      }
+    },
+    "client1_theme": {
+      "description": "Кастомная тема для client1",
+      "colors": {
+        "primary": "#2f7cff",
+        "secondary": "#1b68eb",
+        "accent": "#28a745",
+        "background": "#f5f5f5",
+        "text": "#333333"
+      },
+      "fonts": {
+        "heading": "Inter, sans-serif",
+        "body": "Inter, sans-serif"
+      }
+    },
+    "client2_theme": {
+      "description": "Кастомная тема для client2",
+      "colors": {
+        "primary": "#ff0000",
+        "secondary": "#eb0000",
+        "accent": "#28a745",
+        "background": "#f5f5f5",
+        "text": "#333333"
+      },
+      "fonts": {
+        "heading": "Inter, sans-serif",
+        "body": "Inter, sans-serif"
+      }
+    },
+    "client3_theme": {
+      "description": "Кастомная тема для client3",
+      "colors": {
+        "primary": "#00ff00",
+        "secondary": "#00eb00",
+        "accent": "#28a745",
+        "background": "#f5f5f5",
+        "text": "#333333"
+      },
+      "fonts": {
+        "heading": "Inter, sans-serif",
+        "body": "Inter, sans-serif"
+      }
+    },
+    "booking_page": {
+      "description": "Макет booking_page для test_client",
+      "template": "<div class='layout-booking_page'>test_client layout</div>",
+      "css": ".layout-booking_page { padding: 20px; }"
+    }
+  },
+  "layouts": {
+    "booking_page": {
+      "description": "Макет booking_page для performance_test",
+      "sections": [
+        {
+          "widget": "header",
+          "position": "top"
+        },
+        {
+          "widget": "service_card",
+          "position": "main",
+          "repeat": "services"
+        },
+        {
+          "widget": "time_slot_picker",
+          "position": "main"
+        },
+        {
+          "widget": "contact_form",
+          "position": "main"
+        },
+        {
+          "widget": "footer",
+          "position": "bottom"
+        }
+      ]
+    },
+    "ecommerce_page": {
+      "description": "Макет ecommerce_page для client2",
+      "sections": [
+        {
+          "widget": "header",
+          "position": "top"
+        },
+        {
+          "widget": "service_card",
+          "position": "main",
+          "repeat": "services"
+        },
+        {
+          "widget": "time_slot_picker",
+          "position": "main"
+        },
+        {
+          "widget": "contact_form",
+          "position": "main"
+        },
+        {
+          "widget": "footer",
+          "position": "bottom"
+        }
+      ]
+    },
+    "contact_page": {
+      "description": "Макет contact_page для client3",
+      "sections": [
+        {
+          "widget": "header",
+          "position": "top"
+        },
+        {
+          "widget": "service_card",
+          "position": "main",
+          "repeat": "services"
+        },
+        {
+          "widget": "time_slot_picker",
+          "position": "main"
+        },
+        {
+          "widget": "contact_form",
+          "position": "main"
+        },
+        {
+          "widget": "footer",
+          "position": "bottom"
+        }
+      ]
+    },
+    "basic": {
+      "description": "Макет basic для test",
+      "sections": [
+        {
+          "widget": "header",
+          "position": "top"
+        },
+        {
+          "widget": "service_card",
+          "position": "main",
+          "repeat": "services"
+        },
+        {
+          "widget": "time_slot_picker",
+          "position": "main"
+        },
+        {
+          "widget": "contact_form",
+          "position": "main"
+        },
+        {
+          "widget": "footer",
+          "position": "bottom"
+        }
+      ]
+    },
+    "custom_layout": {
+      "description": "Макет custom_layout для custom_layout_test",
+      "sections": [
+        {
+          "widget": "header",
+          "position": "top"
+        },
+        {
+          "widget": "service_card",
+          "position": "main",
+          "repeat": "services"
+        },
+        {
+          "widget": "time_slot_picker",
+          "position": "main"
+        },
+        {
+          "widget": "contact_form",
+          "position": "main"
+        },
+        {
+          "widget": "footer",
+          "position": "bottom"
+        }
+      ]
+    }
+  },
+  "themes": {
+    "default": {
+      "description": "Стандартная тема",
+      "colors": {
+        "primary": "#2a5298",
+        "secondary": "#1e3c72",
+        "accent": "#28a745",
+        "background": "#f5f5f5",
+        "text": "#333333"
+      },
+      "fonts": {
+        "heading": "Segoe UI, sans-serif",
+        "body": "Segoe UI, sans-serif"
+      }
+    },
+    "modern": {
+      "description": "Современная тема",
+      "colors": {
+        "primary": "#6366f1",
+        "secondary": "#4f46e5",
+        "accent": "#10b981",
+        "background": "#ffffff",
+        "text": "#1f2937"
+      },
+      "fonts": {
+        "heading": "Inter, sans-serif",
+        "body": "Inter, sans-serif"
+      }
+    },
+    "test_client_theme": {
+      "description": "Кастомная тема для test_client",
+      "colors": {
+        "primary": "#2f7cff",
+        "secondary": "#1b68eb",
+        "accent": "#28a745",
+        "background": "#f5f5f5",
+        "text": "#333333"
+      },
+      "fonts": {
+        "heading": "Inter, sans-serif",
+        "body": "Inter, sans-serif"
+      }
+    },
+    "source_client_theme": {
+      "description": "Кастомная тема для source_client",
+      "colors": {
+        "primary": "#2f7cff",
+        "secondary": "#1b68eb",
+        "accent": "#28a745",
+        "background": "#f5f5f5",
+        "text": "#333333"
+      },
+      "fonts": {
+        "heading": "Inter, sans-serif",
+        "body": "Inter, sans-serif"
+      }
+    },
+    "test_theme": {
+      "description": "Кастомная тема для test",
+      "colors": {
+        "primary": "#2f7cff",
+        "secondary": "#1b68eb",
+        "accent": "#28a745",
+        "background": "#f5f5f5",
+        "text": "#333333"
+      },
+      "fonts": {
+        "heading": "Inter, sans-serif",
+        "body": "Inter, sans-serif"
+      }
+    },
+    "workflow_test_theme": {
+      "description": "Кастомная тема для workflow_test",
+      "colors": {
+        "primary": "#2f7cff",
+        "secondary": "#1b68eb",
+        "accent": "#28a745",
+        "background": "#f5f5f5",
+        "text": "#333333"
+      },
+      "fonts": {
+        "heading": "Inter, sans-serif",
+        "body": "Inter, sans-serif"
+      }
+    },
+    "client1_theme": {
+      "description": "Кастомная тема для client1",
+      "colors": {
+        "primary": "#2f7cff",
+        "secondary": "#1b68eb",
+        "accent": "#28a745",
+        "background": "#f5f5f5",
+        "text": "#333333"
+      },
+      "fonts": {
+        "heading": "Inter, sans-serif",
+        "body": "Inter, sans-serif"
+      }
+    },
+    "client2_theme": {
+      "description": "Кастомная тема для client2",
+      "colors": {
+        "primary": "#2f7cff",
+        "secondary": "#1b68eb",
+        "accent": "#28a745",
+        "background": "#f5f5f5",
+        "text": "#333333"
+      },
+      "fonts": {
+        "heading": "Inter, sans-serif",
+        "body": "Inter, sans-serif"
+      }
+    },
+    "client3_theme": {
+      "description": "Кастомная тема для client3",
+      "colors": {
+        "primary": "#2f7cff",
+        "secondary": "#1b68eb",
+        "accent": "#28a745",
+        "background": "#f5f5f5",
+        "text": "#333333"
+      },
+      "fonts": {
+        "heading": "Inter, sans-serif",
+        "body": "Inter, sans-serif"
+      }
+    },
+    "custom_client_theme": {
+      "description": "Кастомная тема для custom_client",
+      "colors": {
+        "primary": "#2f7cff",
+        "secondary": "#1b68eb",
+        "accent": "#28a745",
+        "background": "#f5f5f5",
+        "text": "#333333"
+      },
+      "fonts": {
+        "heading": "Inter, sans-serif",
+        "body": "Inter, sans-serif"
+      }
+    },
+    "integration_test_theme": {
+      "description": "Кастомная тема для integration_test",
+      "colors": {
+        "primary": "#2f7cff",
+        "secondary": "#1b68eb",
+        "accent": "#28a745",
+        "background": "#f5f5f5",
+        "text": "#333333"
+      },
+      "fonts": {
+        "heading": "Inter, sans-serif",
+        "body": "Inter, sans-serif"
+      }
+    },
+    "custom_test_theme": {
+      "description": "Кастомная тема для custom_test",
+      "colors": {
+        "primary": "#2f7cff",
+        "secondary": "#1b68eb",
+        "accent": "#28a745",
+        "background": "#f5f5f5",
+        "text": "#333333"
+      },
+      "fonts": {
+        "heading": "Inter, sans-serif",
+        "body": "Inter, sans-serif"
+      }
+    },
+    "performance_test_theme": {
+      "description": "Кастомная тема для performance_test",
+      "colors": {
+        "primary": "#2f7cff",
+        "secondary": "#1b68eb",
+        "accent": "#28a745",
+        "background": "#f5f5f5",
+        "text": "#333333"
+      },
+      "fonts": {
+        "heading": "Inter, sans-serif",
+        "body": "Inter, sans-serif"
+      }
+    },
+    "custom_layout_test_theme": {
+      "description": "Кастомная тема для custom_layout_test",
+      "colors": {
+        "primary": "#ff0000",
+        "secondary": "#eb0000",
+        "accent": "#28a745",
+        "background": "#f5f5f5",
+        "text": "#333333"
+      },
+      "fonts": {
+        "heading": "Inter, sans-serif",
+        "body": "Inter, sans-serif"
+      }
+    }
+  }
+}

@@ -1,0 +1,40 @@
+# Skin-As-Code система - Зависимости для разработки
+
+# Включаем основные зависимости
+-r requirements.txt
+
+# Тестирование
+pytest>=7.4.3
+pytest-cov>=4.1.0
+pytest-mock>=3.12.0
+pytest-asyncio>=0.21.1
+pytest-html>=4.1.1
+
+# Линтинг и форматирование
+flake8>=6.1.0
+black>=23.11.0
+isort>=5.12.0
+pylint>=3.0.3
+mypy>=1.7.1
+
+# Документация
+sphinx>=7.2.6
+sphinx-rtd-theme>=1.3.0
+
+# Pre-commit hooks
+pre-commit>=3.6.0
+
+# Отладка
+ipdb>=0.13.13
+ipython>=8.17.2
+
+# Профилирование
+memory-profiler>=0.61.0
+line-profiler>=4.1.2
+
+# Безопасность
+bandit>=1.7.5
+safety>=2.3.5
+
+# Утилиты разработки
+watchdog>=3.0.0 

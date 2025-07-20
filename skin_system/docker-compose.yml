@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  skin-system:
+    build: .
+    container_name: jalm-skin-system
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./skin_system/skins:/app/skin_system/skins
+      - ./skin_system/registry:/app/skin_system/registry
+    environment:
+      - SKIN_SYSTEM_ENV=production
+      - PYTHONPATH=/app
+    restart: unless-stopped
+    networks:
+      - jalm-network
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7-alpine
+    container_name: jalm-skin-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - jalm-network
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    container_name: jalm-skin-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./skin_system/skins:/var/www/skins
+    depends_on:
+      - skin-system
+    networks:
+      - jalm-network
+    restart: unless-stopped
+
+volumes:
+  redis_data:
+
+networks:
+  jalm-network:
+    driver: bridge 

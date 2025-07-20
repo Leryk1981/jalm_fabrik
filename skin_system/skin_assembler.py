@@ -36,7 +36,7 @@ class SkinAssembler:
         client_dir.mkdir(exist_ok=True)
         
         # Получаем конфигурацию скина
-        layout_name = skin_config.get("layout", "booking_page")
+        layout_name = skin_config.get("layout", "basic")
         theme_name = skin_config.get("theme", "default")
         custom_css = skin_config.get("custom_css", "")
         custom_js = skin_config.get("custom_js", "")
@@ -72,7 +72,7 @@ class SkinAssembler:
             json.dump(data, f, indent=2, ensure_ascii=False)
         
         print(f"[OK] Скин собран: {index_path}")
-        return str(index_path)
+        return str(client_dir)
     
     def _generate_html(self, client_name: str, layout: Dict[str, Any], theme: Dict[str, Any], 
                       data: Dict[str, Any], custom_css: str, custom_js: str) -> str:
@@ -126,30 +126,21 @@ class SkinAssembler:
         """Подготовка данных для виджетов"""
         widget_data = {
             "app_name": data.get("app_name", "JALM App"),
-            "services": data.get("services", []),
-            "working_hours": data.get("working_hours", {}),
-            "contact_info": data.get("contact_info", {}),
-            "theme": data.get("theme", {}),
             "api_url": data.get("api_url", "http://localhost:8080")
         }
         
-        # Добавляем данные по умолчанию если их нет
-        if not widget_data["services"]:
-            widget_data["services"] = [
-                {"id": "service1", "name": "Услуга 1", "price": 1000, "duration": 60},
-                {"id": "service2", "name": "Услуга 2", "price": 1500, "duration": 90}
-            ]
+        # Добавляем данные для конкретных виджетов
+        if "services" in data:
+            widget_data["services"] = data["services"]
         
-        if not widget_data["working_hours"]:
-            widget_data["working_hours"] = {
-                "понедельник": {"start": "09:00", "end": "18:00"},
-                "вторник": {"start": "09:00", "end": "18:00"},
-                "среда": {"start": "09:00", "end": "18:00"},
-                "четверг": {"start": "09:00", "end": "18:00"},
-                "пятница": {"start": "09:00", "end": "18:00"},
-                "суббота": {"start": "10:00", "end": "16:00"},
-                "воскресенье": {"start": "10:00", "end": "16:00"}
-            }
+        if "working_hours" in data:
+            widget_data["working_hours"] = data["working_hours"]
+        
+        if "contact_info" in data:
+            widget_data["contact_info"] = data["contact_info"]
+        
+        if "products" in data:
+            widget_data["products"] = data["products"]
         
         return widget_data
     
@@ -173,7 +164,14 @@ class SkinAssembler:
             line-height: 1.6;
         }}
         
-        /* Заголовки */
+        /* Контейнеры */
+        .container {{
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }}
+        
+        /* Текст */
         h1, h2, h3, h4, h5, h6 {{
             font-family: {fonts.get('heading', 'Segoe UI, sans-serif')};
             color: {colors.get('primary', '#2a5298')};
@@ -198,15 +196,6 @@ class SkinAssembler:
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }}
         
-        /* Карточки */
-        .card {{
-            background: white;
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }}
-        
         /* Формы */
         .form-group {{
             margin-bottom: 20px;
@@ -216,7 +205,6 @@ class SkinAssembler:
             display: block;
             margin-bottom: 8px;
             font-weight: 500;
-            color: {colors.get('text', '#333333')};
         }}
         
         .form-group input,
@@ -237,54 +225,21 @@ class SkinAssembler:
             border-color: {colors.get('primary', '#2a5298')};
         }}
         
-        /* Сетка */
-        .grid {{
-            display: grid;
-            gap: 20px;
+        /* Списки */
+        .list {{
+            list-style: none;
+            padding: 0;
         }}
         
-        .grid-2 {{
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        }}
-        
-        .grid-3 {{
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        }}
-        
-        /* Статус сообщения */
-        .status {{
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }}
-        
-        .status.success {{
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }}
-        
-        .status.error {{
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }}
-        
-        .status.info {{
-            background: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
+        .list li {{
+            padding: 10px;
+            border-bottom: 1px solid #eee;
         }}
         
         /* Адаптивность */
         @media (max-width: 768px) {{
             .container {{
                 padding: 10px;
-            }}
-            
-            .grid-2,
-            .grid-3 {{
-                grid-template-columns: 1fr;
             }}
         }}
         
@@ -339,38 +294,6 @@ class SkinAssembler:
             animate();
         }}
         
-        // Функции для работы с формами
-        function showStatus(message, type = 'info') {{
-            const statusDiv = document.getElementById('status');
-            if (statusDiv) {{
-                statusDiv.className = `status ${{type}}`;
-                statusDiv.textContent = message;
-                statusDiv.style.display = 'block';
-                
-                setTimeout(() => {{
-                    statusDiv.style.display = 'none';
-                }}, 5000);
-            }}
-        }}
-        
-        function submitForm(formData) {{
-            fetch(`${{appConfig.api_url}}/api/submit`, {{
-                method: 'POST',
-                headers: {{
-                    'Content-Type': 'application/json'
-                }},
-                body: JSON.stringify(formData)
-            }})
-            .then(response => response.json())
-            .then(data => {{
-                showStatus('✅ Форма успешно отправлена!', 'success');
-            }})
-            .catch(error => {{
-                showStatus('❌ Ошибка при отправке формы', 'error');
-                console.error('Error:', error);
-            }});
-        }}
-        
         // Инициализация при загрузке страницы
         document.addEventListener('DOMContentLoaded', function() {{
             console.log('[SKIN] Приложение загружено:', appConfig.app_name);
@@ -379,17 +302,6 @@ class SkinAssembler:
             if (typeof THREE !== 'undefined') {{
                 initThreeJS();
             }}
-            
-            // Обработчики событий для форм
-            const forms = document.querySelectorAll('form');
-            forms.forEach(form => {{
-                form.addEventListener('submit', function(e) {{
-                    e.preventDefault();
-                    const formData = new FormData(form);
-                    const data = Object.fromEntries(formData);
-                    submitForm(data);
-                }});
-            }});
         }});
         
         // Обработка изменения размера окна
@@ -416,12 +328,11 @@ class SkinAssembler:
         for section in sections:
             widget_name = section.get("widget")
             position = section.get("position", "main")
-            repeat = section.get("repeat")
             
             if not widget_name:
                 continue
             
-            widget_html = self._generate_widget_html(widget_name, widget_data, repeat)
+            widget_html = self._generate_widget_html(widget_name, widget_data)
             
             if position == "top":
                 html_parts.append(f'<header class="header-section">{widget_html}</header>')
@@ -435,9 +346,6 @@ class SkinAssembler:
         # Добавляем Three.js контейнер
         html_parts.append('<div id="three-container" style="position: fixed; top: 0; left: 0; z-index: -1;"></div>')
         
-        # Добавляем статус сообщения
-        html_parts.append('<div id="status" class="status" style="display: none;"></div>')
-        
         return '\n'.join(html_parts)
     
     def _generate_widget_html(self, widget_name: str, data: Dict[str, Any], repeat: Optional[str] = None) -> str:
@@ -445,7 +353,7 @@ class SkinAssembler:
         
         if widget_name == "header":
             return f"""
-            <div class="card">
+            <div class="header">
                 <h1><i class="fas fa-rocket"></i> {data.get('app_name', 'JALM App')}</h1>
                 <p>Современное веб-приложение на базе JALM Full Stack</p>
             </div>
@@ -465,7 +373,7 @@ class SkinAssembler:
                 """
             
             return f"""
-            <div class="card">
+            <div class="booking-form">
                 <h2><i class="fas fa-calendar-alt"></i> Забронировать услугу</h2>
                 <form>
                     <div class="form-group">
@@ -501,7 +409,7 @@ class SkinAssembler:
                 cards_html = ""
                 for service in services:
                     cards_html += f"""
-                    <div class="card">
+                    <div class="service-card">
                         <h3><i class="fas fa-star"></i> {service['name']}</h3>
                         <p class="price">{service['price']} ₽</p>
                         <p class="duration">{service['duration']} минут</p>
@@ -510,16 +418,75 @@ class SkinAssembler:
                         </button>
                     </div>
                     """
-                return f'<div class="grid grid-3">{cards_html}</div>'
+                return f'<div class="services-grid">{cards_html}</div>'
             else:
                 service = services[0] if services else {"name": "Услуга", "price": 1000, "duration": 60}
                 return f"""
-                <div class="card">
+                <div class="service-card">
                     <h3><i class="fas fa-star"></i> {service['name']}</h3>
                     <p class="price">{service['price']} ₽</p>
                     <p class="duration">{service['duration']} минут</p>
                 </div>
                 """
+        
+        elif widget_name == "time_slot_picker":
+            return f"""
+            <div class="time-slot-picker">
+                <h2>Выберите время</h2>
+                <div class="form-group">
+                    <label for="date">Дата:</label>
+                    <input type="date" id="date" name="date" required>
+                </div>
+                <div class="time-slots">
+                    <div class="time-slot">09:00</div>
+                    <div class="time-slot">10:00</div>
+                    <div class="time-slot">11:00</div>
+                    <div class="time-slot">12:00</div>
+                    <div class="time-slot">13:00</div>
+                    <div class="time-slot">14:00</div>
+                </div>
+            </div>
+            """
+        
+        elif widget_name == "product_grid":
+            products = data.get("products", [])
+            products_html = ""
+            for product in products:
+                products_html += f"""
+                <div class="product-card">
+                    <h3>{product['name']}</h3>
+                    <p class="price">{product['price']} ₽</p>
+                    <p>{product.get('description', '')}</p>
+                    <button class="btn" onclick="addToCart('{product['id']}')">
+                        <i class="fas fa-shopping-cart"></i> В корзину
+                    </button>
+                </div>
+                """
+            return f'<div class="products-grid">{products_html}</div>'
+        
+        elif widget_name == "contact_form":
+            return f"""
+            <div class="contact-form">
+                <h2><i class="fas fa-envelope"></i> Свяжитесь с нами</h2>
+                <form>
+                    <div class="form-group">
+                        <label for="name">Имя:</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Сообщение:</label>
+                        <textarea id="message" name="message" rows="5" required></textarea>
+                    </div>
+                    <button type="submit" class="btn">
+                        <i class="fas fa-paper-plane"></i> Отправить
+                    </button>
+                </form>
+            </div>
+            """
         
         elif widget_name == "working_hours":
             hours = data.get("working_hours", {})
@@ -532,24 +499,26 @@ class SkinAssembler:
                 """
             
             return f"""
-            <div class="card">
+            <div class="working-hours">
                 <h3><i class="fas fa-clock"></i> Часы работы</h3>
                 {hours_html}
             </div>
             """
         
         elif widget_name == "footer":
+            contact_info = data.get("contact_info", {})
             return f"""
-            <div class="card">
+            <div class="footer">
                 <p>&copy; 2024 {data.get('app_name', 'JALM App')}. Все права защищены.</p>
-                <p>Создано с помощью JALM Full Stack</p>
+                <p>Телефон: {contact_info.get('phone', '+7 (999) 123-45-67')}</p>
+                <p>Email: {contact_info.get('email', 'info@example.com')}</p>
             </div>
             """
         
         else:
             # Fallback для неизвестных виджетов
             return f"""
-            <div class="card">
+            <div class="widget-fallback">
                 <h3>Виджет: {widget_name}</h3>
                 <p>Данные: {json.dumps(data, ensure_ascii=False)}</p>
             </div>
@@ -561,21 +530,14 @@ if __name__ == "__main__":
     
     # Пример данных
     test_data = {
-        "app_name": "Барбершоп 'Стиль'",
-        "services": [
-            {"id": "haircut", "name": "Стрижка", "price": 1500, "duration": 60},
-            {"id": "beard", "name": "Стрижка бороды", "price": 800, "duration": 30}
-        ],
-        "working_hours": {
-            "понедельник": {"start": "09:00", "end": "20:00"},
-            "вторник": {"start": "09:00", "end": "20:00"}
-        },
+        "app_name": "Тестовое приложение",
+        "content": "Это тестовое содержимое",
         "api_url": "http://localhost:8080"
     }
     
     # Конфигурация скина
     skin_config = {
-        "layout": "booking_page",
+        "layout": "basic",
         "theme": "default",
         "custom_css": "",
         "custom_js": ""

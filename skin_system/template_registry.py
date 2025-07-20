@@ -15,22 +15,14 @@ class TemplateRegistry:
         self.registry_path.mkdir(parents=True, exist_ok=True)
         self.skin_json_path = self.registry_path / "skin.json"
         
-        # Инициализация базовых виджетов
-        self._init_default_widgets()
+        # Инициализация готовых виджетов для конкретных задач
+        self._init_ready_widgets()
     
-    def _init_default_widgets(self):
-        """Инициализация базовых виджетов в skin.json"""
+    def _init_ready_widgets(self):
+        """Инициализация готовых виджетов для конкретных задач"""
         if not self.skin_json_path.exists():
-            default_widgets = {
+            ready_widgets = {
                 "widgets": {
-                    "header": {
-                        "type": "component",
-                        "template": "header.html",
-                        "css": "header.css",
-                        "js": "header.js",
-                        "props": ["title", "subtitle", "logo"],
-                        "description": "Заголовок страницы с логотипом"
-                    },
                     "booking_form": {
                         "type": "form",
                         "template": "booking_form.html", 
@@ -55,6 +47,14 @@ class TemplateRegistry:
                         "props": ["date", "slots", "selected_time"],
                         "description": "Выбор временного слота"
                     },
+                    "product_grid": {
+                        "type": "grid",
+                        "template": "product_grid.html",
+                        "css": "product_grid.css",
+                        "js": "product_grid.js",
+                        "props": ["products", "columns"],
+                        "description": "Сетка товаров/услуг"
+                    },
                     "contact_form": {
                         "type": "form",
                         "template": "contact_form.html",
@@ -62,14 +62,6 @@ class TemplateRegistry:
                         "js": "contact_form.js",
                         "props": ["fields", "submit_text"],
                         "description": "Контактная форма"
-                    },
-                    "status_message": {
-                        "type": "message",
-                        "template": "status_message.html",
-                        "css": "status_message.css",
-                        "js": "status_message.js",
-                        "props": ["type", "message", "icon"],
-                        "description": "Сообщение о статусе операции"
                     },
                     "working_hours": {
                         "type": "info",
@@ -79,21 +71,13 @@ class TemplateRegistry:
                         "props": ["schedule", "timezone"],
                         "description": "Отображение часов работы"
                     },
-                    "product_grid": {
-                        "type": "grid",
-                        "template": "product_grid.html",
-                        "css": "product_grid.css",
-                        "js": "product_grid.js",
-                        "props": ["products", "columns"],
-                        "description": "Сетка товаров/услуг"
-                    },
-                    "navigation": {
-                        "type": "nav",
-                        "template": "navigation.html",
-                        "css": "navigation.css",
-                        "js": "navigation.js",
-                        "props": ["items", "active_page"],
-                        "description": "Навигационное меню"
+                    "header": {
+                        "type": "component",
+                        "template": "header.html",
+                        "css": "header.css",
+                        "js": "header.js",
+                        "props": ["title", "subtitle", "logo"],
+                        "description": "Заголовок страницы с логотипом"
                     },
                     "footer": {
                         "type": "component",
@@ -119,7 +103,6 @@ class TemplateRegistry:
                         "description": "Страница магазина",
                         "sections": [
                             {"widget": "header", "position": "top"},
-                            {"widget": "navigation", "position": "top"},
                             {"widget": "product_grid", "position": "main"},
                             {"widget": "footer", "position": "bottom"}
                         ]
@@ -162,26 +145,12 @@ class TemplateRegistry:
                             "heading": "Inter, sans-serif",
                             "body": "Inter, sans-serif"
                         }
-                    },
-                    "classic": {
-                        "description": "Классическая тема",
-                        "colors": {
-                            "primary": "#dc2626",
-                            "secondary": "#991b1b",
-                            "accent": "#059669",
-                            "background": "#fefefe",
-                            "text": "#111827"
-                        },
-                        "fonts": {
-                            "heading": "Georgia, serif",
-                            "body": "Georgia, serif"
-                        }
                     }
                 }
             }
             
             with open(self.skin_json_path, 'w', encoding='utf-8') as f:
-                json.dump(default_widgets, f, indent=2, ensure_ascii=False)
+                json.dump(ready_widgets, f, indent=2, ensure_ascii=False)
     
     def get_widget(self, widget_name: str) -> Optional[Dict[str, Any]]:
         """Получить виджет по имени"""
@@ -239,6 +208,38 @@ class TemplateRegistry:
             return True
         except Exception as e:
             print(f"Ошибка добавления виджета: {e}")
+            return False
+    
+    def add_theme(self, name: str, theme_config: Dict[str, Any]) -> bool:
+        """Добавить новую тему в реестр"""
+        try:
+            with open(self.skin_json_path, 'r', encoding='utf-8') as f:
+                registry = json.load(f)
+            
+            registry["themes"][name] = theme_config
+            
+            with open(self.skin_json_path, 'w', encoding='utf-8') as f:
+                json.dump(registry, f, indent=2, ensure_ascii=False)
+            
+            return True
+        except Exception as e:
+            print(f"Ошибка добавления темы: {e}")
+            return False
+    
+    def add_layout(self, name: str, layout_config: Dict[str, Any]) -> bool:
+        """Добавить новый макет в реестр"""
+        try:
+            with open(self.skin_json_path, 'r', encoding='utf-8') as f:
+                registry = json.load(f)
+            
+            registry["layouts"][name] = layout_config
+            
+            with open(self.skin_json_path, 'w', encoding='utf-8') as f:
+                json.dump(registry, f, indent=2, ensure_ascii=False)
+            
+            return True
+        except Exception as e:
+            print(f"Ошибка добавления макета: {e}")
             return False
     
     def update_widget(self, name: str, widget_config: Dict[str, Any]) -> bool:
